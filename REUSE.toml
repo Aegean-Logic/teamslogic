@@ -38,6 +38,20 @@ precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Aegean Logic"
 SPDX-License-Identifier = "MIT OR Apache-2.0"
 
+# TeamsLogic: the Windows installer's banner and signing script, as in SlideLogic (MIT OR Apache-2.0)
+[[annotations]]
+path = ["packaging/windows/branding/**", "packaging/windows/sign.ps1"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Aegean Logic"
+SPDX-License-Identifier = "MIT OR Apache-2.0"
+
+# TeamsLogic: the Aegean Logic marks, trademarks of Aegean Logic (docs/brand/LICENSE-brand.txt)
+[[annotations]]
+path = ["docs/brand/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Aegean Logic <https://www.aegeanlogic.co.uk>"
+SPDX-License-Identifier = "LicenseRef-AegeanLogicTrademarks"
+
 [[annotations]]
 path = "resources/vue-devtools.crx"
 precedence = "aggregate"

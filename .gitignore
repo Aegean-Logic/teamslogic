@@ -38,6 +38,9 @@ node_modules/
 # Electron-Forge
 out/
 
+# TeamsLogic: packaging/windows/package.ps1
+dist/
+
 # IDE
 .vscode/
 .idea/

@@ -36,6 +36,7 @@ The rebrand uses Talk Desktop's own branding hook, so upstream merges stay cheap
 | `img/` | Every image derived from them, under upstream's file names: `npm run generate-branding` (`scripts/teamslogic-branding.cjs`) |
 | `build/resolveBuildConfig.js` | A branded config may set `companyName` and `copyright`; the MSI UpgradeCode comes from `winAppId`, so TeamsLogic (`197f49ff-ed4b-5364-a6ee-7864cad64cbb`) never upgrades over Nextcloud Talk (`1436ac6d-…`) |
 | `package.json` | `productName`, `desktopName`, and the repository and issue links (Aegean-Logic/teamslogic) |
+| `packaging/windows/`, `docs/brand/` | The WiX v5 MSI with the Aegean Logic Setup dialogs (as the other Aegean Office apps'), its signing script, and the Aegean Logic lockup its banner uses |
 | About box, Help menu, main menu | Keep the Source Code and Issues links in branded builds (the AGPL source offer) and credit Aegean Logic and Nextcloud Talk Desktop |
 
 Internal names stay upstream's: the npm package `talk-desktop`, the l10n app id `talk_desktop`,
@@ -55,8 +56,21 @@ npm run package:windows:x64:exe
 ```
 
 `out/TeamsLogic-win32-x64/TeamsLogic.exe` is the app; `out/make/squirrel.windows/x64/TeamsLogic-windows-x64.exe`
-is the per-user Setup. The machine-wide MSI (`npm run package:windows:x64:msi`) needs WiX
-Toolset v3.14 (`candle.exe` and `light.exe` on `PATH`), which electron-wix-msi uses.
+is the per-user Setup.
+
+The machine-wide MSI, the one Aegean Office Setup installs, is built with WiX v5 like the other
+Aegean Office apps':
+
+```bash
+pwsh packaging/windows/package.ps1
+```
+
+It writes `dist/release/teamslogic-<version>-windows-x64.msi`: a per-machine install into Program
+Files, a Start menu shortcut, an optional desktop shortcut (`DESKTOPSHORTCUT=1`), a firewall
+exception for calls and the Aegean Logic Setup dialogs (`packaging/windows/teamslogic.wxs`). It needs
+WiX's firewall extension: `wix extension add -g WixToolset.Firewall.wixext/5.0.2`. `sign.ps1` signs
+the exe and the MSI when signing secrets are set. Upstream's electron-wix-msi maker
+(`npm run package:windows:x64:msi`) still works too, with WiX v3.14.
 
 `npm run dev` runs it from source as "TeamsLogic (dev)", with its own settings folder.
 
@@ -89,33 +103,12 @@ Conflicts are most likely in the derived images (take upstream's, then `npm run 
 `package.json`, `REUSE.toml` and the handful of files above. Then rebuild, and regenerate the styles
 if the build asks for it.
 
-## Plan: TeamsLogic in Aegean Office Setup
+## In Aegean Office Setup
 
-Aegean Office Setup (`installer/windows/` in the head repo) is a WiX v5 Burn bundle chaining
-the apps' MSIs. TeamsLogic joins it as a fourth package:
-
-1. **TeamsLogic's MSI.** Talk Desktop already makes a per-machine MSI with electron-wix-msi: it
-   installs to Program Files, adds a Start menu shortcut and the firewall exception calls need,
-   and shows in Installed apps. With the branding above it is TeamsLogic by Aegean Logic, with its
-   own UpgradeCode. It is built with WiX v3; a WiX v5 bundle chains any MSI, so only the build
-   machine needs WiX v3.14 as well as v5.
-2. **Desktop shortcut.** The other three MSIs take `DESKTOPSHORTCUT=1|0`. Add the same to
-   TeamsLogic's MSI in `forge.config.js`, in the `beforeCreate` hook that already edits the
-   generated `.wxs` for the firewall: a `DESKTOPSHORTCUT` property (default 0) and a component
-   with a desktop shortcut under that condition.
-3. **`build.ps1`.** Build TeamsLogic after the other three: `npm ci`, `npm run build:windows:x64`,
-   `npm run package:windows:x64:msi` in `teamslogic/`, then pass the MSI to WiX as
-   `-d TeamsLogicMsi=…`. `-SkipApps` reuses it like the others.
-4. **`bundle.wxs`.** A fourth `<MsiPackage Id="TeamsLogic">` in the chain with
-   `DESKTOPSHORTCUT=[DesktopShortcuts]`, and a `teamslogic.png` payload. The bundle's UpgradeCode
-   stays, so the next Setup adds TeamsLogic to machines that have the suite already.
-5. **The Setup window.** `theme.xml` and `theme.wxl` list four apps; `branding/generate.ps1`
-   renders `teamslogic.png` from the head repo's `brand/teamslogic/teamslogic.svg`, a copy of this
-   repo's `brand/teamslogic.svg`.
-6. **Signing.** `forge.config.js` signs the exe and the MSI when `WINDOWS_SIGN_PARAMS` is set,
-   which will carry the Azure Artifact Signing parameters once that account is validated.
-7. **Head repo.** `teamslogic` becomes the seventh submodule (Aegean-Logic/teamslogic), and the
-   README and the installer's README say four apps.
+Aegean Office Setup (`installer/windows/` in the head repo, a WiX v5 Burn bundle) chains this
+MSI after GridLogic's, WordLogic's and SlideLogic's: its `build.ps1` runs `packaging/windows/package.ps1`
+here like each app's own, the Create desktop shortcuts box reaches TeamsLogic as `DESKTOPSHORTCUT`,
+and uninstalling Aegean Office removes it with the others.
 
 ## Plan: opening shared Office files in Aegean Office
 

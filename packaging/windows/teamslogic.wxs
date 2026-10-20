@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: 2026 Aegean Logic
+  SPDX-License-Identifier: AGPL-3.0-or-later
+
+  TeamsLogic MSI (WiX Toolset v5 with its firewall extension). Built by package.ps1 from the
+  packaged app (npm run build:windows:x64):
+
+    wix build teamslogic.wxs -arch x64 -ext WixToolset.Firewall.wixext -d Version=2.3.3 -d AppDir=... -d IconPath=... -o out.msi
+
+  The same shape as GridLogic's, WordLogic's and SlideLogic's MSIs, so Aegean Office Setup chains
+  it like theirs: per-machine install into Program Files, a Start Menu shortcut, an optional
+  desktop shortcut (DESKTOPSHORTCUT=1|0, remembered across upgrades) and the Aegean Logic Setup
+  dialogs. Like upstream's MSI it adds a firewall exception for TeamsLogic.exe, so calls work
+  without an administrator allowing it later. Both shortcuts carry the AppUserModelID the app
+  sets for MSI installs (winAppId, uk.co.aegeanlogic.teamslogic), which Windows needs to show
+  its notifications.
+
+  UpgradeCode is TeamsLogic's own (build/resolveBuildConfig.js derives the same value from
+  winAppId; Nextcloud Talk's is different), so installing TeamsLogic never upgrades, replaces
+  or removes Nextcloud Talk. The component GUIDs were generated 2026-10-20. Never change them.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:fw="http://wixtoolset.org/schemas/v4/wxs/firewall">
+  <Package
+      Name="TeamsLogic"
+      Manufacturer="Aegean Logic"
+      Version="$(var.Version)"
+      UpgradeCode="197F49FF-ED4B-5364-A6EE-7864CAD64CBB"
+      Scope="perMachine"
+      Compressed="yes"
+      Language="1033">
+    <SummaryInformation Description="TeamsLogic chat, calls and meetings" Manufacturer="Aegean Logic" />
+    <MajorUpgrade AllowSameVersionUpgrades="yes"
+        DowngradeErrorMessage="A newer version of TeamsLogic is already installed." />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <Icon Id="TeamsLogicIcon.ico" SourceFile="$(var.IconPath)" />
+    <Property Id="ARPPRODUCTICON" Value="TeamsLogicIcon.ico" />
+    <!-- The Aegean Logic banner at the top of each Setup dialog (branding/generate.ps1). -->
+    <Binary Id="TeamsLogicBanner" SourceFile="$(sys.SOURCEFILEDIR)branding\banner.bmp" />
+    <Property Id="ARPURLINFOABOUT" Value="https://www.aegeanlogic.co.uk" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://github.com/Aegean-Logic/teamslogic/releases" />
+    <Property Id="ARPHELPLINK" Value="https://www.aegeanlogic.co.uk" />
+
+    <!-- An explicit command-line value wins. Otherwise retain the previous installation's
+         choice, defaulting to off for a fresh install. Run only in the first sequence so the
+         execute sequence cannot reload the old choice after the user unchecks the box. -->
+    <Property Id="DESKTOPSHORTCUT" Secure="yes" />
+    <Property Id="SAVEDDESKTOPSHORTCUT" Secure="yes">
+      <RegistrySearch Id="FindDesktopShortcutPreference" Root="HKLM"
+          Key="Software\TeamsLogic\Installer" Name="DesktopShortcut" Type="raw" />
+    </Property>
+    <SetProperty Id="DESKTOPSHORTCUT" Action="LoadDesktopShortcutPreference" Value="1"
+        After="AppSearch" Sequence="first"
+        Condition="NOT DESKTOPSHORTCUT AND SAVEDDESKTOPSHORTCUT = &quot;1&quot;" />
+    <SetProperty Id="DESKTOPSHORTCUT" Action="DefaultDesktopShortcut" Value="0"
+        After="LoadDesktopShortcutPreference" Sequence="first" Condition="NOT DESKTOPSHORTCUT" />
+    <SetProperty Id="DesktopShortcutChoice" Value="1" After="DefaultDesktopShortcut"
+        Sequence="ui" Condition="DESKTOPSHORTCUT = &quot;1&quot;" />
+
+    <Property Id="DefaultUIFont" Value="TeamsLogicUIFont" />
+    <Property Id="ErrorDialog" Value="TeamsLogicErrorDlg" />
+    <EnsureTable Id="ListBox" />
+    <UI>
+      <TextStyle Id="TeamsLogicUIFont" FaceName="Segoe UI" Size="9" />
+      <TextStyle Id="TeamsLogicTitleFont" FaceName="Segoe UI" Size="13" Bold="yes" />
+      <!-- Every Setup dialog opens with the Aegean Logic banner (370 x 56 dialog units). -->
+      <Dialog Id="DesktopShortcutDlg" Width="370" Height="214" Title="TeamsLogic Setup" NoMinimize="yes">
+        <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="370" Height="56" TabSkip="no" Text="TeamsLogicBanner" />
+        <Control Id="Heading" Type="Text" X="20" Y="68" Width="330" Height="18" Text="{\TeamsLogicTitleFont}Install TeamsLogic" />
+        <Control Id="Description" Type="Text" X="20" Y="90" Width="330" Height="28"
+            Text="TeamsLogic, chat, calls and meetings by Aegean Logic, will be installed for everyone who uses this computer." />
+        <Control Id="DesktopShortcutCheckbox" Type="CheckBox" X="20" Y="124" Width="330" Height="16"
+            Property="DesktopShortcutChoice" CheckBoxValue="1" Text="Create a &amp;desktop shortcut" />
+        <Control Id="BottomLine" Type="Line" X="0" Y="172" Width="370" Height="0" />
+        <Control Id="Website" Type="Hyperlink" X="20" Y="186" Width="150" Height="12"
+            Text="&lt;a href=&quot;https://www.aegeanlogic.co.uk&quot;&gt;www.aegeanlogic.co.uk&lt;/a&gt;" />
+        <Control Id="Install" Type="PushButton" X="232" Y="183" Width="60" Height="18"
+            Default="yes" ElevationShield="yes" Text="&amp;Install">
+          <!-- An unchecked checkbox clears its property. Publish an explicit zero so the
+               elevated execute sequence receives an unambiguous opt-out. -->
+          <Publish Property="DESKTOPSHORTCUT" Value="1" Condition="DesktopShortcutChoice" />
+          <Publish Property="DESKTOPSHORTCUT" Value="0" Condition="NOT DesktopShortcutChoice" />
+          <Publish Event="EndDialog" Value="Return" />
+        </Control>
+        <Control Id="Cancel" Type="PushButton" X="298" Y="183" Width="60" Height="18" Cancel="yes" Text="Cancel">
+          <Publish Event="EndDialog" Value="Exit" />
+        </Control>
+      </Dialog>
+
+      <!-- Windows Installer requires these support dialogs for authored full UI (ICE20).
+           They contain only installer messages and standard response controls. -->
+      <Dialog Id="TeamsLogicErrorDlg" Width="320" Height="120" Title="TeamsLogic Setup" ErrorDialog="yes" NoMinimize="yes">
+        <Control Id="ErrorText" Type="Text" X="15" Y="15" Width="290" Height="65" TabSkip="no" />
+        <Control Id="A" Type="PushButton" X="15" Y="90" Width="65" Height="20" Text="Abort" TabSkip="yes">
+          <Publish Event="EndDialog" Value="ErrorAbort" />
+        </Control>
+        <Control Id="C" Type="PushButton" X="15" Y="90" Width="65" Height="20" Text="Cancel" TabSkip="yes">
+          <Publish Event="EndDialog" Value="ErrorCancel" />
+        </Control>
+        <Control Id="I" Type="PushButton" X="15" Y="90" Width="65" Height="20" Text="Ignore" TabSkip="yes">
+          <Publish Event="EndDialog" Value="ErrorIgnore" />
+        </Control>
+        <Control Id="N" Type="PushButton" X="15" Y="90" Width="65" Height="20" Text="No" TabSkip="yes">
+          <Publish Event="EndDialog" Value="ErrorNo" />
+        </Control>
+        <Control Id="O" Type="PushButton" X="15" Y="90" Width="65" Height="20" Text="OK" TabSkip="yes">
+          <Publish Event="EndDialog" Value="ErrorOk" />
+        </Control>
+        <Control Id="R" Type="PushButton" X="15" Y="90" Width="65" Height="20" Text="Retry" TabSkip="yes">
+          <Publish Event="EndDialog" Value="ErrorRetry" />
+        </Control>
+        <Control Id="Y" Type="PushButton" X="15" Y="90" Width="65" Height="20" Text="Yes" TabSkip="yes">
+          <Publish Event="EndDialog" Value="ErrorYes" />
+        </Control>
+      </Dialog>
+      <Dialog Id="FilesInUse" Width="320" Height="190" Title="TeamsLogic Setup" NoMinimize="yes">
+        <Control Id="Description" Type="Text" X="15" Y="15" Width="290" Height="35"
+            Text="Close the applications listed below, then choose Retry. Ignore may require a restart." />
+        <Control Id="Files" Type="ListBox" X="15" Y="55" Width="290" Height="85" Property="FileInUseProcess" />
+        <Control Id="Retry" Type="PushButton" X="95" Y="155" Width="65" Height="20" Default="yes" Text="Retry">
+          <Publish Event="EndDialog" Value="Retry" />
+        </Control>
+        <Control Id="Ignore" Type="PushButton" X="167" Y="155" Width="65" Height="20" Text="Ignore">
+          <Publish Event="EndDialog" Value="Ignore" />
+        </Control>
+        <Control Id="Cancel" Type="PushButton" X="240" Y="155" Width="65" Height="20" Cancel="yes" Text="Cancel">
+          <Publish Event="EndDialog" Value="Exit" />
+        </Control>
+      </Dialog>
+      <Dialog Id="SetupCompleteDlg" Width="370" Height="150" Title="TeamsLogic Setup" NoMinimize="yes">
+        <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="370" Height="56" TabSkip="no" Text="TeamsLogicBanner" />
+        <Control Id="Message" Type="Text" X="20" Y="70" Width="330" Height="36" Text="TeamsLogic is installed. You will find it in the Start menu; sign in with your Nextcloud's address." />
+        <Control Id="BottomLine" Type="Line" X="0" Y="112" Width="370" Height="0" />
+        <Control Id="Close" Type="PushButton" X="298" Y="122" Width="60" Height="18" Default="yes" Cancel="yes" Text="Close">
+          <Publish Event="EndDialog" Value="Return" />
+        </Control>
+      </Dialog>
+      <Dialog Id="SetupCanceledDlg" Width="370" Height="150" Title="TeamsLogic Setup" NoMinimize="yes">
+        <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="370" Height="56" TabSkip="no" Text="TeamsLogicBanner" />
+        <Control Id="Message" Type="Text" X="20" Y="70" Width="330" Height="36" Text="TeamsLogic setup was canceled." />
+        <Control Id="BottomLine" Type="Line" X="0" Y="112" Width="370" Height="0" />
+        <Control Id="Close" Type="PushButton" X="298" Y="122" Width="60" Height="18" Default="yes" Cancel="yes" Text="Close">
+          <Publish Event="EndDialog" Value="Return" />
+        </Control>
+      </Dialog>
+      <Dialog Id="SetupFailedDlg" Width="370" Height="150" Title="TeamsLogic Setup" NoMinimize="yes">
+        <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="370" Height="56" TabSkip="no" Text="TeamsLogicBanner" />
+        <Control Id="Message" Type="Text" X="20" Y="70" Width="330" Height="36" Text="TeamsLogic setup could not finish. See the installer message or log for details." />
+        <Control Id="BottomLine" Type="Line" X="0" Y="112" Width="370" Height="0" />
+        <Control Id="Close" Type="PushButton" X="298" Y="122" Width="60" Height="18" Default="yes" Cancel="yes" Text="Close">
+          <Publish Event="EndDialog" Value="Return" />
+        </Control>
+      </Dialog>
+    </UI>
+    <InstallUISequence>
+      <!-- Component conditions must see the choice before costing. Do not show the choice
+           during basic/silent installs, repair or uninstall. -->
+      <Show Dialog="DesktopShortcutDlg" Before="CostInitialize" Condition="NOT Installed AND NOT REMOVE AND UILevel = 5" />
+      <Show Dialog="SetupCompleteDlg" OnExit="success" Condition="UILevel = 5" />
+      <Show Dialog="SetupCanceledDlg" OnExit="cancel" Condition="UILevel = 5" />
+      <Show Dialog="SetupFailedDlg" OnExit="error" Condition="UILevel = 5" />
+    </InstallUISequence>
+    <AdminUISequence>
+      <Show Dialog="SetupCompleteDlg" OnExit="success" Condition="UILevel = 5" />
+      <Show Dialog="SetupCanceledDlg" OnExit="cancel" Condition="UILevel = 5" />
+      <Show Dialog="SetupFailedDlg" OnExit="error" Condition="UILevel = 5" />
+    </AdminUISequence>
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="TeamsLogic" />
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder" />
+    <StandardDirectory Id="DesktopFolder" />
+
+    <Feature Id="Main" Title="TeamsLogic" Level="1">
+      <ComponentGroupRef Id="TeamsLogicFiles" />
+    </Feature>
+  </Package>
+
+  <Fragment>
+    <ComponentGroup Id="TeamsLogicFiles" Directory="INSTALLFOLDER">
+      <Component Id="TeamsLogicApp" Guid="AC2AF9CA-766C-4A99-BDA6-4961CE997FD6">
+        <File Id="TeamsLogicExe" Source="$(var.AppDir)\TeamsLogic.exe" KeyPath="yes">
+          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="TeamsLogic"
+              Description="TeamsLogic chat, calls and meetings" WorkingDirectory="INSTALLFOLDER" Advertise="yes"
+              Icon="TeamsLogicIcon.ico" IconIndex="0">
+            <ShortcutProperty Key="System.AppUserModel.ID" Value="uk.co.aegeanlogic.teamslogic" />
+          </Shortcut>
+          <fw:FirewallException Id="TeamsLogicFirewall" Name="TeamsLogic"
+              Description="Chat, calls and meetings for Aegean Office" Scope="any" IgnoreFailure="yes" />
+        </File>
+        <RegistryValue Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\TeamsLogic.exe" Value="[#TeamsLogicExe]" Type="string" />
+      </Component>
+
+      <!-- The rest of the packaged Electron app (DLLs, resources\app.asar, locales\, ...). -->
+      <Files Include="$(var.AppDir)\**">
+        <Exclude Files="$(var.AppDir)\TeamsLogic.exe" />
+      </Files>
+
+      <!-- Persist both on and off, independently of the optional shortcut. AppSearch reads
+           this before MajorUpgrade removes the previous product. -->
+      <Component Id="DesktopShortcutPreference" Guid="7EDD8A7C-3C5D-45B3-9671-73E9518CA3B4">
+        <RegistryValue Root="HKLM" Key="Software\TeamsLogic\Installer" Name="DesktopShortcut"
+            Value="[DESKTOPSHORTCUT]" Type="string" KeyPath="yes" />
+      </Component>
+      <!-- As GridLogic's, WordLogic's and SlideLogic's: HKMU resolves to HKLM for this per-machine
+           package, so another account can uninstall the marker too. -->
+      <Component Id="DesktopShortcutComponent" Directory="DesktopFolder" Guid="28F911E4-062C-4CA3-BE23-F06175651BD6" Condition="DESKTOPSHORTCUT = &quot;1&quot;">
+        <Shortcut Id="DesktopShortcut" Name="TeamsLogic" Description="TeamsLogic chat, calls and meetings"
+            Target="[#TeamsLogicExe]" WorkingDirectory="INSTALLFOLDER" Icon="TeamsLogicIcon.ico" IconIndex="0">
+          <ShortcutProperty Key="System.AppUserModel.ID" Value="uk.co.aegeanlogic.teamslogic" />
+        </Shortcut>
+        <RegistryValue Root="HKMU" Key="Software\TeamsLogic\Installer" Name="DesktopShortcutComponent"
+            Value="1" Type="integer" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>
