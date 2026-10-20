@@ -10,6 +10,7 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import IconCloudDownloadOutline from 'vue-material-design-icons/CloudDownloadOutline.vue'
 import IconWeb from 'vue-material-design-icons/Web.vue'
 import AppWindow from '../../shared/components/AppWindow.vue'
+import { BUILD_CONFIG } from '../../shared/build.config.ts'
 
 const packageInfo = window.TALK_DESKTOP.packageInfo
 
@@ -35,7 +36,7 @@ const browserLink = generateUrl('/apps/spreed')
 				<template #icon>
 					<IconCloudDownloadOutline :size="20" />
 				</template>
-				{{ t('talk_desktop', 'Update Talk Desktop') }} ↗
+				{{ t('talk_desktop', 'Update {applicationName}', { applicationName: BUILD_CONFIG.applicationName }) }} ↗
 			</NcButton>
 			<NcButton
 				:href="browserLink"

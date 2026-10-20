@@ -29,18 +29,14 @@ precedence = "aggregate"
 SPDX-FileCopyrightText = "2022 Nextcloud GmbH and Nextcloud contributors"
 SPDX-License-Identifier = "CC0-1.0"
 
+# TeamsLogic: the icon, the images derived from it (scripts/teamslogic-branding.cjs) and the
+# installer images are original work in the Aegean Logic palette, licensed like the icons of
+# GridLogic and SlideLogic. They replace Nextcloud's trademarked artwork.
 [[annotations]]
-path = ["img/dmg-background.png", "img/dmg-background@2x.png"]
+path = ["brand/**", "img/talk-**.svg", "img/icons/**", "img/squirrel-install-loading.gif", "img/server-logo-plain.svg", "img/dmg-background.png", "img/dmg-background@2x.png", "img/wix-background.bmp", "img/wix-banner.bmp", "TeamsLogic-*.png", ".overrides/build.config.json"]
 precedence = "aggregate"
-SPDX-FileCopyrightText = "2024 Nextcloud GmbH"
-SPDX-License-Identifier = "CC-BY-SA-4.0"
-SPDX-FileAttributionText = "Modified jenna-kim-the-globe.webp with app icon placeholders and an arrow on top to use as a background image for the macOS DMG installer"
-
-[[annotations]]
-path = ["img/wix-background.bmp", "img/wix-banner.bmp"]
-precedence = "aggregate"
-SPDX-FileCopyrightText = "2025 Nextcloud GmbH and Nextcloud contributors"
-SPDX-License-Identifier = "LicenseRef-NextcloudTrademarks"
+SPDX-FileCopyrightText = "2026 Aegean Logic"
+SPDX-License-Identifier = "MIT OR Apache-2.0"
 
 [[annotations]]
 path = "resources/vue-devtools.crx"
@@ -53,12 +49,6 @@ path = ["sounds/notification.ogg", "sounds/talk.ogg"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2017 Feandesign https://soundcloud.com/feandesign"
 SPDX-License-Identifier = "CC0-1.0"
-
-[[annotations]]
-path = ["img/talk-**.svg", "img/icons/**", "img/squirrel-install-loading.gif", "img/server-logo-plain.svg", "Nextcloud-Talk-light.png", "Nextcloud-Talk-dark.png"]
-precedence = "aggregate"
-SPDX-FileCopyrightText = "Nextcloud GmbH <https://nextcloud.com/trademarks/>"
-SPDX-License-Identifier = "LicenseRef-NextcloudTrademarks"
 
 [[annotations]]
 path = ["build/build.config.json"]

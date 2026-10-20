@@ -6,7 +6,6 @@
 const { app, shell, Menu } = require('electron')
 const packageJson = require('../../package.json')
 const { createHelpWindow } = require('../help/help.window.js')
-const { BUILD_CONFIG } = require('../shared/build.config.ts')
 const { isMac } = require('./system.utils.ts')
 const { increaseZoom, decreaseZoom, setZoom } = require('./zoom.service.ts')
 
@@ -118,14 +117,10 @@ function setupMenu() {
 					createHelpWindow(focusedWindow)
 				},
 			},
-			...(BUILD_CONFIG.isBranded
-				? []
-				: [
-						createLinkMenuItem('Homepage', packageJson.repository.url),
-						createLinkMenuItem('Report a bug', packageJson.bugs.create),
-						createLinkMenuItem('Source Code', packageJson.repository.url),
-					]
-			),
+			// TeamsLogic: package.json points at the fork, so branded builds keep these links
+			createLinkMenuItem('Homepage', packageJson.repository.url),
+			createLinkMenuItem('Report a bug', packageJson.bugs.create),
+			createLinkMenuItem('Source Code', packageJson.repository.url),
 			createLinkMenuItem(`License ${packageJson.license}`, 'https://www.gnu.org/licenses/agpl-3.0.txt'),
 		],
 	}

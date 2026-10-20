@@ -23,6 +23,19 @@ export type BuildConfigFile = {
 	description: string
 
 	/**
+	 * Company name (TeamsLogic).
+	 * Used in metadata, installers and the Windows policy registry key.
+	 * Default: the application name on branded builds, 'Nextcloud GmbH' otherwise
+	 */
+	companyName?: string
+
+	/**
+	 * Copyright string, {year} is replaced (TeamsLogic).
+	 * Default: 'Copyright (c) {year}' on branded builds, 'Copyright (c) {year} Nextcloud GmbH' otherwise
+	 */
+	copyright?: string
+
+	/**
 	 * Default: null
 	 */
 	domain: string | null

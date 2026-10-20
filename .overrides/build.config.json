@@ -1,0 +1,16 @@
+{
+	"applicationName": "TeamsLogic",
+	"description": "Chat, calls and meetings for Aegean Office",
+	"companyName": "Aegean Logic",
+	"copyright": "Copyright (c) {year} Aegean Logic. Based on Nextcloud Talk Desktop, copyright (c) Nextcloud GmbH and contributors",
+	"brandColor": "#0A2A3B",
+	"brandGradient": "linear-gradient(40deg, #0A2A3B 0%, #12718C 100%)",
+	"brandFontColor": "#FFFFFF",
+	"helpUrl": "https://github.com/Aegean-Logic/teamslogic",
+	"privacyUrl": "https://www.aegeanlogic.co.uk",
+	"primaryColor": "#12718C",
+	"backgroundColor": "#0A2A3B",
+	"appleAppBundleId": "uk.co.aegeanlogic.teamslogic",
+	"winAppId": "uk.co.aegeanlogic.teamslogic",
+	"linuxAppId": "uk.co.aegeanlogic.teamslogic"
+}

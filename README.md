@@ -1,197 +1,150 @@
 <!--
+  - SPDX-FileCopyrightText: 2026 Aegean Logic
   - SPDX-FileCopyrightText: 2022 Nextcloud GmbH and Nextcloud contributors
-  - SPDX-License-Identifier: CC0-1.0
+  - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-# Nextcloud Talk Desktop
+<p align="center"><img src="brand/teamslogic.svg" width="96" alt=""></p>
 
-[![REUSE status](https://api.reuse.software/badge/github.com/nextcloud/talk-desktop)](https://api.reuse.software/info/github.com/nextcloud/talk-desktop)
-[![GitHub Release Stable](https://img.shields.io/github/v/release/nextcloud-releases/talk-desktop?sort=semver&display_name=tag&style=flat)](https://github.com/nextcloud-releases/talk-desktop/releases/latest)
-[![GitHub Release Beta](https://img.shields.io/github/v/release/nextcloud-releases/talk-desktop?include_prereleases&sort=semver&display_name=tag&style=flat)](https://github.com/nextcloud-releases/talk-desktop/releases/)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/nextcloud-releases/talk-desktop/total?style=flat)
+<h1 align="center">TeamsLogic</h1>
 
-> Use [Nextcloud Talk](https://github.com/nextcloud/spreed/) on your desktop without opening a web browser
+<p align="center">
+  <b>Chat, calls and meetings for Aegean Office, on your own Nextcloud.</b><br>
+  <i>By <a href="https://www.aegeanlogic.co.uk">Aegean Logic</a>. Based on
+  <a href="https://github.com/nextcloud/talk-desktop">Nextcloud Talk Desktop</a>.</i>
+</p>
 
-![Nextcloud Talk](./Nextcloud-Talk-light.png#gh-light-mode-only)
-![Nextcloud Talk](./Nextcloud-Talk-dark.png#gh-dark-mode-only)
+<p align="center"><img src="TeamsLogic-chat.png" alt="TeamsLogic with the Budget3.xlsx file conversation open" width="900"></p>
 
-## 📥 Install
+TeamsLogic is the Teams-style app of Aegean Office, next to GridLogic, WordLogic and SlideLogic.
+It is a fork of Nextcloud Talk Desktop: one-to-one and group chat, calls with screen sharing,
+the conversation of each shared file, and notifications, against the Talk app on your Nextcloud.
 
-All binaries and `beta` releases are available on [Nextcloud Releases](https://github.com/nextcloud-releases/talk-desktop/releases).
+- **Server:** Nextcloud 27 or later with Talk 17 or later, over `https://` only (Talk Desktop
+  has no `http://` support). Checked against Nextcloud 34.0.5 with Talk 24.0.6.
+- **Built-in Talk:** the Talk web front end it carries is v25.0.6 (from `@nextcloud/talk`).
 
-| Platform (arch)          | Distribution type                                                                                                           | Download link                                                                                                                                        |
-|--------------------------|-----------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **🐧 Linux** (x64)       | [Flatpak](https://flatpak.org) single file (recommended), see note below                                                    | [Nextcloud.Talk-linux-x64.flatpak](https://github.com/nextcloud-releases/talk-desktop/releases/latest/download/Nextcloud.Talk-linux-x64.flatpak)     |
-| **🐧 Linux** (x64)       | ZIP archive                                                                                                                 | [Nextcloud.Talk-linux-x64.zip](https://github.com/nextcloud-releases/talk-desktop/releases/latest/download/Nextcloud.Talk-linux-x64.zip)             |
-| **🍎 macOS** (Universal) | Disc Image                                                                                                                  | [Nextcloud.Talk-macos-universal.dmg](https://github.com/nextcloud-releases/talk-desktop/releases/latest/download/Nextcloud.Talk-macos-universal.dmg) |
-| **🪟 Windows** (x64)     | Non-admin single-user one-click installer (recommended)                                                                     | [Nextcloud.Talk-windows-x64.exe](https://github.com/nextcloud-releases/talk-desktop/releases/latest/download/Nextcloud.Talk-windows-x64.exe)         |
-| **🪟 Windows** (x64)     | [MSI](https://github.com/electron-userland/electron-wix-msi/blob/master/guides/enduser.md) (for administrated environments) | [Nextcloud.Talk-windows-x64.msi](https://github.com/nextcloud-releases/talk-desktop/releases/latest/download/Nextcloud.Talk-windows-x64.msi)         |
+## What the fork changes
 
-Installation of flatpak on Linux: Ensure you have Flatpak installed on your system. Then, use the command `flatpak install <path-to-flatpakref-file>` in the terminal, replacing `<path-to-flatpakref-file>` with the actual path to your Flatpak file.
+The rebrand uses Talk Desktop's own branding hook, so upstream merges stay cheap:
 
-### via Package manager
+| Where | What |
+|---|---|
+| `.overrides/build.config.json` | The name, description, app id `uk.co.aegeanlogic.teamslogic`, company Aegean Logic, copyright, Aegean colours (primary sea `#12718C`, background ink `#0A2A3B`) |
+| `.overrides/styles/35/` | Nextcloud 35 styles themed with those colours (`node scripts/override-nextcloud-styles.mjs --version 35`, needs Docker) |
+| `brand/` | The icon masters, "Bubble trace" (`teamslogic.svg`, and `teamslogic-small.svg` for 32 px and below) |
+| `img/` | Every image derived from them, under upstream's file names: `npm run generate-branding` (`scripts/teamslogic-branding.cjs`) |
+| `build/resolveBuildConfig.js` | A branded config may set `companyName` and `copyright`; the MSI UpgradeCode comes from `winAppId`, so TeamsLogic (`197f49ff-ed4b-5364-a6ee-7864cad64cbb`) never upgrades over Nextcloud Talk (`1436ac6d-…`) |
+| `package.json` | `productName`, `desktopName`, and the repository and issue links (Aegean-Logic/teamslogic) |
+| About box, Help menu, main menu | Keep the Source Code and Issues links in branded builds (the AGPL source offer) and credit Aegean Logic and Nextcloud Talk Desktop |
 
-| Platform       | Package manager                                                                       | Command                              | Status                                                                                    |
-|----------------|---------------------------------------------------------------------------------------|--------------------------------------|-------------------------------------------------------------------------------------------|
-| **🪟 Windows** | [Windows Package Manager](https://learn.microsoft.com/en-us/windows/package-manager/) | `winget install Nextcloud.Talk`      | ![WinGet Package Version](https://img.shields.io/winget/v/Nextcloud.Talk?style=flat)      |
-| **🪟 Windows** | [Windows Package Manager](https://learn.microsoft.com/en-us/windows/package-manager/) | `winget install Nextcloud.Talk.Beta` | ![WinGet Package Version](https://img.shields.io/winget/v/Nextcloud.Talk.Beta?style=flat) |                                                                                     |
+Internal names stay upstream's: the npm package `talk-desktop`, the l10n app id `talk_desktop`,
+the window entry points `talk_desktop__window_*`, `window.TALK_DESKTOP`, and the img file names.
 
-#### Community supported packages
+Branded builds turn off upstream's GitHub update check (it would look at Nextcloud's releases).
+TeamsLogic updates come with Aegean Office Setup.
 
-| Platform       | Package manager                                           | Command                        | Status                                                                                       |
-|----------------|-----------------------------------------------------------|--------------------------------|----------------------------------------------------------------------------------------------|
-| **🍎 macOS** | [Homebrew](https://formulae.brew.sh/cask/nextcloud-talk#default) | `brew install --cask nextcloud-talk` | ![Homebrew Package](https://img.shields.io/homebrew/cask/v/nextcloud-talk?style=flat) | 
-| **🪟 Windows** | [Chocolatey Community](https://community.chocolatey.org/) | `choco install nextcloud-talk` | ![Chocolatey Package Version](https://img.shields.io/chocolatey/v/nextcloud-talk?style=flat) |
+## Building on Windows
 
-## 🏗️ Prerequisites
-
-- [Nextcloud Server](https://github.com/nextcloud/server) version 27 or higher.
-- [Nextcloud Talk](https://github.com/nextcloud/spreed) version 17 or higher.
-
-## 👥 Multi-account
-
-Full multi-account currently [is not currently supported](https://github.com/nextcloud/talk-desktop/issues/7).
-
-However, using portable `zip` distribution, you can have several Nextcloud Talk instances run simultaneously. Just rename the executable from default  `Nextcloud Talk` to a custom name. For example: 
-
-```
-/path/to/apps/
-├── home-apps/
-│   └── Nextcloud Talk/
-│       ├── ...
-│       ├── Nextcloud Talk (Home).exe
-│       └── ...
-└── work-apps/
-    └── Nextcloud Talk/
-        ├── ...
-        ├── Nextcloud Talk (Work).exe
-        └── ...
-```
-
-## ⌨️ CLI usage
-
-### Application flags
-
-Adjust how the application runs when launching.
-
-| Flag           | Description                                                                   |
-|----------------|-------------------------------------------------------------------------------|
-| `--background` | Start minimized to the system tray without a window (used for run at startup) |
-
-### CLI commands
-
-Run a command in the app and quit without launching the entire app.
-
-#### `config`
-
-Set application configuration.
-
-| Option                     | Description                                |
-|----------------------------|--------------------------------------------|
-| `--accounts=[user@]server` | Comma-separated list of prefilled accounts |
-
-Examples:
-
-```sh
-./Nextcloud\ Talk config --accounts=cloud.company.tld
-./Nextcloud\ Talk config --accounts='Name Surname@cloud.company.tld'
-./Nextcloud\ Talk config --accounts=name@email.tld@company.tld/nextcloud
-```
-
-## 🛠️ Development Setup
-
-Install dependencies:
-```bash
-npm ci 
-```
-
-### Advanced setup
-
-By default, Talk Desktop bundles a specific Talk frontend installed as an npm dependency.
-To develop with a different version, an unreleased branch or local version, clone it to `./spreed`:
-
-```sh
-# Clone to ./spreed
-git clone https://github.com/nextcloud/spreed
-
-# And install dependencies in spreed as well
-npm --prefix=spreed ci
-```
-
-To use local Talk from a different path, for example, a local Nextcloud server setup, set `TALK_PATH` ENV variable or edit `.env` file:
-
-```sh
-TALK_PATH=/path/to/nextcloud/server/apps-extra/spreed/
-```
-
-## 🧑‍💻 Development
-
-### Start development server in Electron
+Needs Node 24 and npm 11.
 
 ```bash
-npm run dev
+npm ci
+npm run build:windows:x64
+npm run package:windows:x64:exe
 ```
 
-### Build binaries for production
+`out/TeamsLogic-win32-x64/TeamsLogic.exe` is the app; `out/make/squirrel.windows/x64/TeamsLogic-windows-x64.exe`
+is the per-user Setup. The machine-wide MSI (`npm run package:windows:x64:msi`) needs WiX
+Toolset v3.14 (`candle.exe` and `light.exe` on `PATH`), which electron-wix-msi uses.
+
+`npm run dev` runs it from source as "TeamsLogic (dev)", with its own settings folder.
+
+After changing an icon master, run `npm run generate-branding`. After changing the colours in
+`.overrides/build.config.json`, or when the built-in Talk moves to a new Nextcloud version,
+regenerate the styles with `node scripts/override-nextcloud-styles.mjs --version <major>`; the
+build stops with a message saying so when they're out of date.
+
+### Against a local Nextcloud on http://
+
+Talk Desktop only signs in over `https://`. For a test Nextcloud on `http://localhost:8080`
+(Docker), put Caddy in front on loopback and trust it as a proxy:
 
 ```bash
-# 🖥️ Current platform and architecture
-npm run build
-
-# 🐧 Linux (x64)
-npm run build:linux
-
-# 🍏 macOS (universal)
-npm run build:mac
-# 🍏 macOS (separate x64 and arm64)
-npm run build:mac:x64
-npm run build:mac:arm64
-
-# 🪟 Windows (win32-x64)
-npm run build:windows
+docker run -d --name teamslogic-https --network nextcloud_default -p 127.0.0.1:8443:443 caddy:2 caddy reverse-proxy --from localhost --to nextcloud-app-1:80 --internal-certs
+docker exec -u www-data nextcloud-app-1 php occ config:system:set trusted_proxies 0 --value=172.24.0.0/16
 ```
 
-Notes:
-- **General recommendation is to always build binaries on the same platform**
-- Building Windows binaries on Linux/Mac requires Wine
-- Building Mac binaries on Windows is not supported
-- Building Linux binaries on Windows is not supported for some Linux distributions
+Sign in to `https://localhost:8443` and accept Caddy's certificate in TeamsLogic's warning
+(Advanced, Proceed). A file gets a conversation once it is shared (Talk 24 also counts a link share).
 
-### Maintenance
-
-#### Generating icons
-
-After changing source icons, to generate icons in different sizes and formats, run:
+## Merging upstream
 
 ```bash
-npm run generate-icons
+git fetch upstream --tags
+git merge v2.x.y
 ```
 
-#### Updating global (server) styles
+Conflicts are most likely in the derived images (take upstream's, then `npm run generate-branding`),
+`package.json`, `REUSE.toml` and the handful of files above. Then rebuild, and regenerate the styles
+if the build asks for it.
 
-Talk frontend depends on the global Nextcloud server styles. To manually get them run:
+## Plan: TeamsLogic in Aegean Office Setup
 
-```bah
-# node ./scripts/fetch-server-styles.mjs <VERSION>, for example
-node ./scripts/fetch-server-styles.mjs stable29
-```
+Aegean Office Setup (`installer/windows/` in the head repo) is a WiX v5 Burn bundle chaining
+the apps' MSIs. TeamsLogic joins it as a fourth package:
 
-## 📦 Packaging distributions
+1. **TeamsLogic's MSI.** Talk Desktop already makes a per-machine MSI with electron-wix-msi: it
+   installs to Program Files, adds a Start menu shortcut and the firewall exception calls need,
+   and shows in Installed apps. With the branding above it is TeamsLogic by Aegean Logic, with its
+   own UpgradeCode. It is built with WiX v3; a WiX v5 bundle chains any MSI, so only the build
+   machine needs WiX v3.14 as well as v5.
+2. **Desktop shortcut.** The other three MSIs take `DESKTOPSHORTCUT=1|0`. Add the same to
+   TeamsLogic's MSI in `forge.config.js`, in the `beforeCreate` hook that already edits the
+   generated `.wxs` for the firewall: a `DESKTOPSHORTCUT` property (default 0) and a component
+   with a desktop shortcut under that condition.
+3. **`build.ps1`.** Build TeamsLogic after the other three: `npm ci`, `npm run build:windows:x64`,
+   `npm run package:windows:x64:msi` in `teamslogic/`, then pass the MSI to WiX as
+   `-d TeamsLogicMsi=…`. `-SkipApps` reuses it like the others.
+4. **`bundle.wxs`.** A fourth `<MsiPackage Id="TeamsLogic">` in the chain with
+   `DESKTOPSHORTCUT=[DesktopShortcuts]`, and a `teamslogic.png` payload. The bundle's UpgradeCode
+   stays, so the next Setup adds TeamsLogic to machines that have the suite already.
+5. **The Setup window.** `theme.xml` and `theme.wxl` list four apps; `branding/generate.ps1`
+   renders `teamslogic.png` from `brand/teamslogic/teamslogic.svg` (once the icon is final, its
+   masters go into the head repo's `brand/teamslogic/`).
+6. **Signing.** `forge.config.js` signs the exe and the MSI when `WINDOWS_SIGN_PARAMS` is set,
+   which will carry the Azure Artifact Signing parameters once that account is validated.
+7. **Head repo.** `teamslogic` becomes the seventh submodule (Aegean-Logic/teamslogic), and the
+   README and the installer's README say four apps.
 
-```bash
-# 🐧 Linux (x64)
-npm run package:linux
+## Plan: opening shared Office files in Aegean Office
 
-# 🍏 macOS (universal)
-npm run package:mac
-# 🍏 macOS (separate x64 and arm64)
-npm run package:mac:arm64
-npm run package:mac:x64
+Today a spreadsheet, document or presentation shared in a chat opens in the browser: Talk calls
+`OCA.Viewer` for a file it can preview, and TeamsLogic's Viewer (`src/talk/renderer/Viewer/`)
+has handlers only for images, video, audio, PDF and text, so other files open their Nextcloud
+link externally. The plan:
 
-# 🪟 Windows (win32-x64)
-npm run package:windows
-```
+1. **A Viewer handler for Office files.** Register a handler for the `.xlsx`, `.docx` and `.pptx`
+   MIME types (and ODF where an app reads it) that doesn't render the file. It sends the main
+   process the file's `path` (the message's file parameter, relative to this user's files) and
+   this account's server address.
+2. **Open it in the app.** The main process builds the link the browser editors already use,
+   `gridlogic://open?server=…&path=…` (or `wordlogic://`, `slidelogic://`), and opens it with
+   `shell.openExternal` after checking the scheme is one of the three and
+   `app.getApplicationNameForProtocol()` finds the app. The desktop app signs in to that Nextcloud
+   if it isn't yet, and joins the file's live co-editing session.
+3. **Fallback.** If the app isn't installed, open the browser editor
+   (`/apps/gridcraft/edit?path=…`, `/apps/wordcraft/edit?…`, `/apps/deckcraft/edit?…`) through the
+   existing external-link handler.
+4. **Choice.** The file's menu gets "Open in GridLogic" and "Open in browser", and App settings
+   gets "Open Office files in: Aegean Office apps / the browser".
+5. **The other way round.** The desktop apps' "Chat about this file" opens the file's room in the
+   browser today. Give TeamsLogic a `teamslogic://` scheme (`teamslogic://call/<token>?server=…`,
+   registered by its installer) and have the apps prefer it when it is installed.
 
-## 👥 Contribution Guidelines
+## Licence
 
-See: https://github.com/nextcloud/spreed#contribution-guidelines
+AGPL-3.0-or-later, like Nextcloud Talk Desktop: see [LICENSE](LICENSE) and `LICENSES/`. The
+TeamsLogic icon and the images made from it are original work in the Aegean Logic palette,
+MIT OR Apache-2.0 (see `REUSE.toml`). Nextcloud and Talk are trademarks of Nextcloud GmbH, and
+the Aegean Logic name is a trademark of Aegean Logic.

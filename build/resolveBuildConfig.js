@@ -62,13 +62,16 @@ function resolveBuildConfig() {
 
 		// Inferred values, cannot be overridden by the custom config
 		isBranded,
-		companyName: isBranded ? buildConfig.applicationName : 'Nextcloud GmbH',
-		copyright: (isBranded ? 'Copyright (c) {year}' : 'Copyright (c) {year} Nextcloud GmbH').replace('{year}', new Date().getFullYear()),
+		// TeamsLogic: a branded config may name its company and copyright
+		companyName: buildConfig.companyName || (isBranded ? buildConfig.applicationName : 'Nextcloud GmbH'),
+		copyright: (buildConfig.copyright || (isBranded ? 'Copyright (c) {year}' : 'Copyright (c) {year} Nextcloud GmbH')).replace('{year}', new Date().getFullYear()),
 		applicationNameSanitized,
 		isPlainBackground: buildConfig.backgroundColor !== buildConfigDefaults.backgroundColor,
 		withThemingOverrides: buildConfig.primaryColor !== buildConfigDefaults.primaryColor || buildConfig.backgroundColor !== buildConfigDefaults.backgroundColor,
 		winSquirrelAppId: applicationNameSanitized, // Special case for Squirrel.Windows
-		winUpgradeCode: UUIDv5(`${appIdHost}.talk`, TALK_DESKTOP_UUID),
+		// TeamsLogic: from winAppId when set (unbranded builds keep the same value), so a branded
+		// MSI never upgrades over Nextcloud Talk
+		winUpgradeCode: UUIDv5(buildConfig.winAppId || `${appIdHost}.talk`, TALK_DESKTOP_UUID),
 	}
 }
 

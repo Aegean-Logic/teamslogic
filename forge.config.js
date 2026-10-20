@@ -321,7 +321,7 @@ module.exports = {
 
 			// Icons
 			setupIcon: path.join(__dirname, './img/icons/icon.ico'),
-			iconUrl: 'https://raw.githubusercontent.com/nextcloud/talk-desktop/refs/heads/main/img/icons/icon.ico',
+			iconUrl: 'https://raw.githubusercontent.com/Aegean-Logic/teamslogic/refs/heads/main/img/icons/icon.ico',
 
 			// Install/Update Loading
 			loadingGif: path.join(__dirname, './img/squirrel-install-loading.gif'),

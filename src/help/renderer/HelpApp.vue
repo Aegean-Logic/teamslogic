@@ -53,14 +53,19 @@ function close() {
 						draggable="false"
 						@click="logoClicked += 1">
 					<p><strong>{{ BUILD_CONFIG.applicationName }}{{ isDevMode ? ' 👾' : '' }}</strong></p>
-					<p v-if="!BUILD_CONFIG.isBranded">
+					<p>
 						{{ BUILD_CONFIG.description }}
+					</p>
+					<!-- TeamsLogic: credit the company and the upstream project -->
+					<p v-if="BUILD_CONFIG.isBranded">
+						{{ t('talk_desktop', 'By {companyName}. Based on Nextcloud Talk Desktop.', { companyName: BUILD_CONFIG.companyName }) }}
 					</p>
 					<p>
 						<a class="link" :href="BUILD_CONFIG.privacyUrl" target="_blank">{{ t('talk_desktop', 'Privacy and Legal Policy') }}</a><br>
 						{{ t('talk_desktop', 'License') }}: <a class="link" href="https://www.gnu.org/licenses/agpl-3.0.txt" target="_blank">{{ packageInfo.license }}</a>
 					</p>
-					<p v-if="!BUILD_CONFIG.isBranded">
+					<!-- TeamsLogic: package.json points at the fork, so branded builds keep the links (AGPL source offer) -->
+					<p>
 						<a :href="packageInfo.bugs.url" class="link" target="_blank">{{ t('talk_desktop', 'Issues') }}</a> | <a :href="packageInfo.repository" class="link" target="_blank">{{ t('talk_desktop', 'Source Code') }}</a>
 					</p>
 				</div>

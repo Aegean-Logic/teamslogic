@@ -8,7 +8,11 @@
 spreed/
 
 # Overrides
-.overrides/
+# TeamsLogic: the branding config and the styles themed from it are committed
+# (regenerate the styles with scripts/override-nextcloud-styles.mjs when the config changes)
+.overrides/*
+!.overrides/build.config.json
+!.overrides/styles/
 
 # Logs
 logs

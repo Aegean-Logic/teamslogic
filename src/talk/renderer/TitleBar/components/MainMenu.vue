@@ -22,7 +22,6 @@ import IconMenu from 'vue-material-design-icons/Menu.vue'
 import IconReload from 'vue-material-design-icons/Reload.vue'
 import IconWeb from 'vue-material-design-icons/Web.vue'
 import UiDotBadge from './UiDotBadge.vue'
-import { BUILD_CONFIG } from '../../../../shared/build.config.ts'
 import { getCurrentTalkRoutePath } from '../../TalkWrapper/talk.service.ts'
 
 const packageInfo = window.TALK_DESKTOP.packageInfo
@@ -99,7 +98,6 @@ onBeforeUnmount(() => {
 			{{ t('talk_desktop', 'Force reload') }}
 		</NcActionButton>
 		<NcActionLink
-			v-if="!BUILD_CONFIG.isBranded"
 			:href="packageInfo.bugs.create"
 			target="_blank"
 			closeAfterClick>
