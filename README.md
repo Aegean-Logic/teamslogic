@@ -110,8 +110,8 @@ the apps' MSIs. TeamsLogic joins it as a fourth package:
    `DESKTOPSHORTCUT=[DesktopShortcuts]`, and a `teamslogic.png` payload. The bundle's UpgradeCode
    stays, so the next Setup adds TeamsLogic to machines that have the suite already.
 5. **The Setup window.** `theme.xml` and `theme.wxl` list four apps; `branding/generate.ps1`
-   renders `teamslogic.png` from `brand/teamslogic/teamslogic.svg` (once the icon is final, its
-   masters go into the head repo's `brand/teamslogic/`).
+   renders `teamslogic.png` from the head repo's `brand/teamslogic/teamslogic.svg`, a copy of this
+   repo's `brand/teamslogic.svg`.
 6. **Signing.** `forge.config.js` signs the exe and the MSI when `WINDOWS_SIGN_PARAMS` is set,
    which will carry the Azure Artifact Signing parameters once that account is validated.
 7. **Head repo.** `teamslogic` becomes the seventh submodule (Aegean-Logic/teamslogic), and the
