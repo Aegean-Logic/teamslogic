@@ -3,13 +3,17 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import type { MessageItem } from '../Mail/mail.service.ts'
+
 import axios from '@nextcloud/axios'
+import { t } from '@nextcloud/l10n'
 import { generateOcsUrl } from '@nextcloud/router'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { appData } from '../../../../app/AppData.js'
 import { allNotifications } from '../../notifications/notifications.store.js'
 import { readStored, writeStored } from '../apps.utils.ts'
+import { useMailStore } from '../Mail/mail.store.ts'
 
 export type RichParameter = {
 	type: string
@@ -46,12 +50,42 @@ export type ServerNotification = {
 	actions: NotificationAction[]
 }
 
-export type ActivityCategory = 'mention' | 'reply' | 'reaction' | 'call' | 'share' | 'other'
+export type ActivityCategory = 'mention' | 'reply' | 'reaction' | 'call' | 'share' | 'mail' | 'other'
 
 export type ActivityFilter = 'all' | 'unread' | 'mention' | 'reaction' | 'call'
 
 const READ_KEY = 'teamslogic:activity:read'
 const SEEN_KEY = 'teamslogic:activity:seen'
+
+/** App name of the activity items TeamsLogic makes for new mail */
+const MAIL_APP = 'teamslogic-mail'
+
+/**
+ * An Activity item for a new message, shaped like a server notification (negative ids keep them apart)
+ *
+ * @param message - The message
+ * @param receivedAt - When TeamsLogic saw it
+ */
+function mailToNotification(message: MessageItem, receivedAt: Date): ServerNotification {
+	const sender = message.from[0]
+	return {
+		notificationId: -message.databaseId,
+		app: MAIL_APP,
+		user: '',
+		datetime: receivedAt.toISOString(),
+		objectType: 'mail',
+		objectId: String(message.databaseId),
+		subject: '',
+		subjectRich: t('talk_desktop', '{sender} sent you an email'),
+		subjectRichParameters: { sender: { type: 'email', id: sender?.email ?? '', name: sender?.label || sender?.email || t('talk_desktop', 'Someone') } },
+		message: message.subject,
+		messageRich: '',
+		messageRichParameters: {},
+		link: '',
+		icon: '',
+		actions: [],
+	}
+}
 
 /**
  * Sort a notification into a Teams activity category
@@ -71,6 +105,9 @@ export function getCategory(notification: ServerNotification): ActivityCategory 
 			return (parameter.type === 'user' && parameter.id === userId) || parameter.type === 'call'
 		})
 		return mentionsMe ? 'mention' : 'reply'
+	}
+	if (notification.app === MAIL_APP) {
+		return 'mail'
 	}
 	if (notification.app === 'files_sharing' || notification.objectType === 'share' || notification.objectType === 'remote_share') {
 		return 'share'
@@ -102,9 +139,23 @@ export const useActivityStore = defineStore('activity', () => {
 	const seenId = ref(readStored<number>(SEEN_KEY, 0))
 	const dismissedIds = ref(new Set<number>())
 
-	const notifications = computed(() => (allNotifications.value as ServerNotification[])
+	const mailStore = useMailStore()
+
+	const notifications = computed(() => [
+		...(allNotifications.value as ServerNotification[]),
+		...mailStore.arrivals.map(({ message, receivedAt }) => mailToNotification(message, receivedAt)),
+	]
 		.filter((notification) => !dismissedIds.value.has(notification.notificationId))
-		.sort((a, b) => b.notificationId - a.notificationId))
+		.sort((a, b) => Date.parse(b.datetime) - Date.parse(a.datetime) || b.notificationId - a.notificationId))
+
+	/**
+	 * The message of a new-mail item
+	 *
+	 * @param notification - Activity item
+	 */
+	function getMailMessage(notification: ServerNotification) {
+		return mailStore.arrivals.find(({ message }) => -message.databaseId === notification.notificationId)?.message ?? null
+	}
 
 	const unseenCount = computed(() => notifications.value.filter((notification) => notification.notificationId > seenId.value).length)
 
@@ -144,6 +195,9 @@ export const useActivityStore = defineStore('activity', () => {
 	 */
 	async function dismiss(notification: ServerNotification) {
 		dismissedIds.value = new Set([...dismissedIds.value, notification.notificationId])
+		if (notification.app === MAIL_APP) {
+			return
+		}
 		await axios.delete(generateOcsUrl('apps/notifications/api/v2/notifications/{id}', { id: notification.notificationId }))
 	}
 
@@ -172,6 +226,7 @@ export const useActivityStore = defineStore('activity', () => {
 
 	return {
 		notifications,
+		getMailMessage,
 		unseenCount,
 		isRead,
 		markRead,

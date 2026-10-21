@@ -18,6 +18,7 @@ const { triggerDownloadUrl } = require('./app/downloads.ts')
 const { setupReleaseNotificationScheduler, checkForUpdate } = require('./app/githubRelease.service.ts')
 const { initLaunchAtStartupListener } = require('./app/launchAtStartup.config.ts')
 const { runMigrations } = require('./app/migration.service.ts')
+const { openOAuthWindow } = require('./app/oauthWindow.ts')
 const { systemInfo, isMac, isWindows, isSameExecution, isSquirrel, relaunchApp } = require('./app/system.utils.ts')
 const { applyTheme } = require('./app/theme.config.ts')
 const { buildTitle, onReadyToShow } = require('./app/utils.ts')
@@ -331,6 +332,8 @@ app.whenReady().then(async () => {
 	})
 
 	ipcMain.on('app:downloadURL', (event, url, filename) => triggerDownloadUrl(mainWindow, url, filename))
+
+	ipcMain.handle('teamslogic:oauth:open', (event, url, callbackPaths) => openOAuthWindow(mainWindow, url, callbackPaths))
 
 	ipcMain.handle('certificate:verify', (event, url) => verifyCertificate(mainWindow, url))
 

@@ -39,6 +39,7 @@ const FILTERS: { id: ActivityFilter, label: string }[] = [
 const CATEGORY_ICONS: Partial<Record<ActivityCategory, FluentIconName>> = {
 	mention: 'mention',
 	reply: 'chatSmall',
+	mail: 'mailSmall',
 	call: 'callMissed',
 	share: 'share',
 }
@@ -111,6 +112,12 @@ function getMessage(notification: ServerNotification) {
 function open(notification: ServerNotification) {
 	activityStore.markRead(notification)
 
+	const mailMessage = activityStore.getMailMessage(notification)
+	if (mailMessage) {
+		window.dispatchEvent(new CustomEvent('teamslogic:mail:open', { detail: mailMessage }))
+		return
+	}
+
 	const talkTarget = getTalkTarget(notification)
 	if (talkTarget) {
 		shellStore.openChat(talkTarget.token, { messageId: talkTarget.messageId })
@@ -181,6 +188,13 @@ function goTo(notification: ServerNotification) {
 								:user="getActor(notification)!.id"
 								:displayName="getActor(notification)!.name"
 								:size="32"
+								disableMenu
+								disableTooltip />
+							<NcAvatar
+								v-else-if="getCategory(notification) === 'mail'"
+								:displayName="notification.subjectRichParameters.sender?.name ?? '?'"
+								:size="32"
+								isNoUser
 								disableMenu
 								disableTooltip />
 							<img
@@ -363,6 +377,7 @@ function goTo(notification: ServerNotification) {
 
 .activity-app__badge--mention,
 .activity-app__badge--reply,
+.activity-app__badge--mail,
 .activity-app__badge--share {
 	background-color: var(--teamslogic-brand);
 	color: #FFFFFF;

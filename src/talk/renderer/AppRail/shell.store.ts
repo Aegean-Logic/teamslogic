@@ -7,9 +7,9 @@ import { defineStore } from 'pinia'
 import { readonly, ref, watchEffect } from 'vue'
 import { getCurrentConversationToken, isInCall, openConversation, openRoot } from '../TalkWrapper/talk.service.ts'
 
-export type ShellApp = 'activity' | 'chat' | 'calendar' | 'calls' | 'files'
+export type ShellApp = 'activity' | 'chat' | 'mail' | 'calendar' | 'calls' | 'files'
 
-const SHELL_APPS: ShellApp[] = ['activity', 'chat', 'calendar', 'calls', 'files']
+const SHELL_APPS: ShellApp[] = ['activity', 'chat', 'mail', 'calendar', 'calls', 'files']
 const STORAGE_KEY = 'teamslogic:app'
 
 /**

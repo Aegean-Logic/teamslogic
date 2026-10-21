@@ -139,6 +139,14 @@ const TALK_DESKTOP = {
 	 */
 	downloadURL: (url, filename) => ipcRenderer.send('app:downloadURL', url, filename),
 	/**
+	 * Sign in to Google or Microsoft in an app window for connecting an account to the server
+	 *
+	 * @param {string} url - Provider authorization URL
+	 * @param {string[]} callbackPaths - Server paths of the OAuth callbacks
+	 * @return {Promise<boolean>} Whether the sign-in reached the server callback
+	 */
+	openOAuthWindow: (url, callbackPaths) => ipcRenderer.invoke('teamslogic:oauth:open', url, callbackPaths),
+	/**
 	 * Open developer tools
 	 */
 	toggleDevTools: () => ipcRenderer.send('app:toggleDevTools'),

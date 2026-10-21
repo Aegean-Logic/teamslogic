@@ -11,6 +11,7 @@ import AppView from './Apps/AppView.vue'
 import TalkWrapper from './TalkWrapper/TalkWrapper.vue'
 import TitleBar from './TitleBar/TitleBar.vue'
 import { useShellStore } from './AppRail/shell.store.ts'
+import { useMailStore } from './Apps/Mail/mail.store.ts'
 import { useNotificationsStore } from './notifications/notifications.store.js'
 import { createViewer } from './Viewer/Viewer.js'
 
@@ -18,6 +19,7 @@ const isTalkInitialized = ref(false)
 provide('talk:isInitialized', isTalkInitialized)
 
 const shellStore = useShellStore()
+const mailStore = useMailStore()
 
 /**
  * Talk is running
@@ -25,6 +27,8 @@ const shellStore = useShellStore()
 function onTalkReady() {
 	isTalkInitialized.value = true
 	shellStore.onTalkReady()
+	// Mail runs in the background for the rail badge and new-mail notifications
+	mailStore.init()
 }
 
 useNotificationsStore()

@@ -11,16 +11,19 @@ import { t } from '@nextcloud/l10n'
 import { computed } from 'vue'
 import FluentIcon from './FluentIcon.vue'
 import { useActivityStore } from '../Apps/Activity/activity.store.ts'
+import { useMailStore } from '../Apps/Mail/mail.store.ts'
 import { unreadConversationsCount } from '../TalkWrapper/useBadgeCountIntegration.ts'
 import { useShellStore } from './shell.store.ts'
 
 const shellStore = useShellStore()
 const activityStore = useActivityStore()
+const mailStore = useMailStore()
 
 /** The Teams apps, in Teams order */
 const RAIL_APPS: { id: ShellApp, icon: FluentIconName, label: string }[] = [
 	{ id: 'activity', icon: 'activity', label: t('talk_desktop', 'Activity') },
 	{ id: 'chat', icon: 'chat', label: t('talk_desktop', 'Chat') },
+	{ id: 'mail', icon: 'mail', label: t('talk_desktop', 'Mail') },
 	{ id: 'calendar', icon: 'calendar', label: t('talk_desktop', 'Calendar') },
 	{ id: 'calls', icon: 'call', label: t('talk_desktop', 'Calls') },
 	{ id: 'files', icon: 'files', label: t('talk_desktop', 'Files') },
@@ -29,6 +32,7 @@ const RAIL_APPS: { id: ShellApp, icon: FluentIconName, label: string }[] = [
 const badges = computed<Partial<Record<ShellApp, number>>>(() => ({
 	activity: shellStore.currentApp === 'activity' ? 0 : activityStore.unseenCount,
 	chat: unreadConversationsCount.value,
+	mail: mailStore.unreadCount,
 }))
 
 /**
