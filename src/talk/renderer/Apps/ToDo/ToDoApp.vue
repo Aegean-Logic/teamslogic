@@ -268,7 +268,7 @@ useAppShown('todo', refresh)
 
 <template>
 	<div class="todo-app">
-		<AppPane :title="t('talk_desktop', 'To Do')">
+		<AppPane :title="t('talk_desktop', 'To Do')" class="todo-app__pane">
 			<template #actions>
 				<NcButton
 					variant="tertiary"
@@ -357,7 +357,7 @@ useAppShown('todo', refresh)
 									:title="t('talk_desktop', 'Mark as done')"
 									:disabled="!task.list.writable"
 									@click.stop="edit(task, { done: true })">
-									<FluentIcon name="checkmark" :size="14" />
+									<span class="todo-app__circle"><FluentIcon name="checkmark" :size="12" /></span>
 								</button>
 								<span class="todo-app__task-main">
 									<span class="todo-app__title">{{ task.title || t('talk_desktop', 'Untitled task') }}</span>
@@ -369,11 +369,11 @@ useAppShown('todo', refresh)
 									</span>
 								</span>
 								<button
+									v-if="task.list.writable"
 									class="todo-app__star"
 									:class="{ 'todo-app__star--on': task.important }"
 									:aria-label="task.important ? t('talk_desktop', 'Remove importance') : t('talk_desktop', 'Mark as important')"
 									:aria-pressed="task.important"
-									:disabled="!task.list.writable"
 									@click.stop="edit(task, { important: !task.important })">
 									<FluentIcon name="star" :size="18" :filled="task.important" />
 								</button>
@@ -400,7 +400,7 @@ useAppShown('todo', refresh)
 									:title="t('talk_desktop', 'Mark as not done')"
 									:disabled="!task.list.writable"
 									@click.stop="edit(task, { done: false })">
-									<FluentIcon name="checkmark" :size="14" />
+									<span class="todo-app__circle"><FluentIcon name="checkmark" :size="12" /></span>
 								</button>
 								<span class="todo-app__task-main">
 									<span class="todo-app__title">{{ task.title || t('talk_desktop', 'Untitled task') }}</span>
@@ -510,9 +510,25 @@ useAppShown('todo', refresh)
 	min-width: 0;
 }
 
+/* The lists pane: Mail's folder pane width and its compact rows, the counts centred */
+.todo-app__pane {
+	--navigation-width: 260px;
+}
+
 .todo-app__views {
 	margin: 0;
 	padding: 0;
+
+	:deep(.app-list-item__button) {
+		min-height: 36px;
+		padding-block: 4px;
+	}
+
+	:deep(.app-list-item__details) {
+		align-self: center;
+		color: var(--teamslogic-brand-foreground);
+		font-weight: 600;
+	}
 }
 
 .todo-app__section {
@@ -559,9 +575,9 @@ useAppShown('todo', refresh)
 .todo-app__task {
 	display: flex;
 	align-items: center;
-	gap: 12px;
-	min-height: 52px;
-	padding: 6px 12px;
+	gap: 8px;
+	min-height: 48px;
+	padding: 4px 12px 4px 6px;
 	border-radius: var(--border-radius-large);
 	background-color: var(--teamslogic-surface);
 	box-shadow: var(--teamslogic-shadow-2);
@@ -596,7 +612,14 @@ useAppShown('todo', refresh)
 
 .todo-app__meta {
 	display: flex;
+	align-items: center;
 	gap: 8px;
+
+	> span {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+	}
 	color: var(--teamslogic-foreground-3);
 	font-size: 12px;
 }
@@ -605,41 +628,67 @@ useAppShown('todo', refresh)
 	color: var(--color-error-text, var(--color-error));
 }
 
-/* To Do's round tick box: empty, with the tick on hover, filled when done */
+/* To Do's round tick box: an empty circle, the tick showing on hover, filled when done. The button
+   is a full-size click target; the circle inside keeps its shape whatever size buttons get */
 .todo-app__check {
 	display: flex;
-	flex: 0 0 auto;
+	flex: 0 0 32px;
 	align-items: center;
 	justify-content: center;
-	width: 22px;
-	height: 22px;
+	width: 32px;
+	min-width: 32px;
+	height: 32px;
+	min-height: 32px;
 	margin: 0;
 	padding: 0;
-	border: 2px solid var(--color-primary-element);
+	border: none;
 	border-radius: 50%;
 	background: transparent;
-	color: transparent;
 	cursor: pointer;
 
-	&:hover:not(:disabled) {
-		color: var(--color-primary-element);
+	&:disabled {
+		cursor: default;
 	}
 }
 
-.todo-app__check--on {
+.todo-app__circle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	width: 20px;
+	height: 20px;
+	border: 2px solid var(--color-primary-element);
+	border-radius: 50%;
+	color: transparent;
+}
+
+.todo-app__check:hover:not(:disabled) .todo-app__circle {
+	color: var(--color-primary-element);
+}
+
+.todo-app__check--on .todo-app__circle {
 	background-color: var(--color-primary-element);
 	color: var(--color-primary-element-text);
+}
 
-	&:hover:not(:disabled) {
-		color: var(--color-primary-element-text);
-	}
+/* A read-only list's tasks (Flagged Emails): the circle greyed, as they can't be ticked here */
+.todo-app__check:disabled .todo-app__circle {
+	border-color: var(--teamslogic-foreground-3);
+	opacity: 0.5;
 }
 
 .todo-app__star {
 	display: flex;
-	flex: 0 0 auto;
+	flex: 0 0 32px;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	min-width: 32px;
+	height: 32px;
+	min-height: 32px;
 	margin: 0;
-	padding: 4px;
+	padding: 0;
 	border: none;
 	background: transparent;
 	color: var(--teamslogic-foreground-3);
