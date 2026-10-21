@@ -3,16 +3,15 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-const { BrowserWindow } = require('electron')
+const { BrowserWindow, nativeTheme } = require('electron')
 const { setupTray } = require('../app/app.tray.js')
 const { getAppConfig } = require('../app/AppConfig.ts')
 const { applyContextMenu } = require('../app/applyContextMenu.js')
 const { applyDownloadHandler } = require('../app/downloads.ts')
 const { applyExternalLinkHandler } = require('../app/externalLinkHandlers.ts')
-const { getScaledWindowMinSize, getScaledWindowSize, applyZoom, buildTitle, getWindowUrl, getTitleBarSymbolColor } = require('../app/utils.ts')
+const { getScaledWindowMinSize, getScaledWindowSize, applyZoom, buildTitle, getWindowUrl, getChromeColor, getTitleBarSymbolColor } = require('../app/utils.ts')
 const { applyWheelZoom } = require('../app/zoom.service.ts')
 const { TITLE_BAR_HEIGHT } = require('../constants.js')
-const { BUILD_CONFIG } = require('../shared/build.config.ts')
 const { getBrowserWindowIcon } = require('../shared/icons.utils.js')
 
 /**
@@ -27,7 +26,7 @@ function createTalkWindow() {
 			minWidth: 600,
 			minHeight: 400,
 		}),
-		backgroundColor: BUILD_CONFIG.backgroundColor,
+		backgroundColor: getChromeColor(),
 		autoHideMenuBar: true,
 		webPreferences: {
 			preload: TALK_DESKTOP__WINDOW_TALK_PRELOAD_WEBPACK_ENTRY,
@@ -37,7 +36,7 @@ function createTalkWindow() {
 		titleBarStyle: getAppConfig('systemTitleBar') ? 'default' : 'hidden',
 		titleBarOverlay: {
 			color: '#FFFFFF00',
-			symbolColor: getTitleBarSymbolColor(),
+			symbolColor: getTitleBarSymbolColor(getChromeColor()),
 			height: Math.round(TITLE_BAR_HEIGHT * zoomFactor),
 		},
 		// Position of the top left corner of the traffic light on Mac
@@ -74,6 +73,16 @@ function createTalkWindow() {
 		name: 'talk-secondary',
 		windowStatePersistence: false,
 	})
+
+	// The Teams-style chrome is light or dark with the theme, so the window controls follow it
+	const applyChromeColor = () => {
+		window.setBackgroundColor(getChromeColor())
+		if (!getAppConfig('systemTitleBar') && process.platform !== 'darwin') {
+			window.setTitleBarOverlay({ symbolColor: getTitleBarSymbolColor(getChromeColor()) })
+		}
+	}
+	nativeTheme.on('updated', applyChromeColor)
+	window.on('closed', () => nativeTheme.off('updated', applyChromeColor))
 
 	applyContextMenu(window)
 	applyDownloadHandler(window)

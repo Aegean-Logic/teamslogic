@@ -1,0 +1,438 @@
+/*!
+ * SPDX-FileCopyrightText: 2026 Aegean Logic
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+/*
+ * TeamsLogic theme: the Microsoft Teams layout and Fluent 2 look on top of Nextcloud Talk.
+ * Talk is not forked: this sheet only restyles its markup, prefixed with #content-vue to beat its scoped styles.
+ * Colours are Fluent 2 neutrals with the TeamsLogic brand ramp in place of Teams' purple.
+ * The high contrast themes keep Nextcloud's own colours.
+ */
+
+body[data-themes] {
+	color-scheme: light dark;
+}
+
+body[data-theme-light] {
+	color-scheme: light;
+}
+
+body[data-theme-dark] {
+	color-scheme: dark;
+}
+
+/* Sizes, type and tokens */
+body[data-themes] {
+	--teamslogic-rail-width: 68px;
+
+	--font-face: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji';
+	--default-font-size: 14px;
+	--font-size-small: 12px;
+	--default-line-height: 1.43;
+	--font-weight-element: 600;
+	--font-weight-heading: 700;
+
+	--border-radius-small: 4px;
+	--border-radius-element: 4px;
+	--border-radius-large: 4px;
+	--border-radius-container: 8px;
+	--border-radius-container-large: 8px;
+	--default-clickable-area: 32px;
+	--navigation-width: 320px;
+
+	/* Fluent 2 neutrals: Teams light / dark */
+	--teamslogic-chrome: light-dark(#EBEBEB, #141414);
+	--teamslogic-chrome-hover: light-dark(#E0E0E0, #292929);
+	--teamslogic-pane: light-dark(#F5F5F5, #1F1F1F);
+	--teamslogic-pane-hover: light-dark(#FAFAFA, #292929);
+	--teamslogic-surface: light-dark(#FFFFFF, #292929);
+	--teamslogic-stage: light-dark(#F5F5F5, #1F1F1F);
+	--teamslogic-stroke: light-dark(#E0E0E0, #3D3D3D);
+	--teamslogic-stroke-strong: light-dark(#D1D1D1, #525252);
+	--teamslogic-foreground-1: light-dark(#242424, #FFFFFF);
+	--teamslogic-foreground-2: light-dark(#424242, #D6D6D6);
+	--teamslogic-foreground-3: light-dark(#616161, #ADADAD);
+	--teamslogic-shadow-2: 0 0 2px light-dark(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.24)), 0 1px 2px light-dark(rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.28));
+	--teamslogic-shadow-4: 0 0 2px light-dark(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.24)), 0 2px 4px light-dark(rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.28));
+	--teamslogic-badge: #C4314B;
+
+	/* The TeamsLogic brand ramp, in the slots where Teams uses #5B5FC7 / #4F52B2 / #444791 / #E8EBFA */
+	--teamslogic-brand: #12718C;
+	--teamslogic-brand-hover: light-dark(#0F6177, #1A86A5);
+	--teamslogic-brand-pressed: light-dark(#0C5163, #0F6177);
+	--teamslogic-brand-foreground: light-dark(#12718C, #5BB3CC);
+	--teamslogic-brand-tint: light-dark(#E1EFF3, #1B3A45);
+	--teamslogic-brand-tint-hover: light-dark(#D3E7ED, #224653);
+}
+
+/* Nextcloud variables mapped to the tokens */
+body[data-themes]:not([data-themes*='highcontrast']) {
+	--color-main-background: var(--teamslogic-surface);
+	--color-main-background-translucent: var(--teamslogic-surface);
+	--color-main-background-blur: var(--teamslogic-surface);
+	--filter-background-blur: none;
+	--color-main-text: var(--teamslogic-foreground-1);
+	--color-text-maxcontrast: var(--teamslogic-foreground-3);
+	--color-text-maxcontrast-default: var(--teamslogic-foreground-3);
+	--color-text-maxcontrast-background-blur: var(--teamslogic-foreground-3);
+	--color-background-hover: light-dark(#F5F5F5, #3D3D3D);
+	--color-background-dark: light-dark(#F0F0F0, #333333);
+	--color-background-darker: light-dark(#E0E0E0, #3D3D3D);
+	--color-border: var(--teamslogic-stroke);
+	--color-border-dark: var(--teamslogic-stroke-strong);
+	--color-border-maxcontrast: light-dark(#757575, #8A8A8A);
+	--color-box-shadow-rgb: 0, 0, 0;
+	--color-box-shadow: rgba(0, 0, 0, 0.14);
+
+	--color-primary: var(--teamslogic-brand);
+	--color-primary-hover: var(--teamslogic-brand-hover);
+	--color-primary-text: #FFFFFF;
+	--color-primary-element: var(--teamslogic-brand);
+	--color-primary-element-hover: var(--teamslogic-brand-hover);
+	--color-primary-element-text: #FFFFFF;
+	--color-primary-element-text-dark: #F0F0F0;
+	--color-primary-light: var(--teamslogic-brand-tint);
+	--color-primary-light-hover: var(--teamslogic-brand-tint-hover);
+	--color-primary-light-text: light-dark(#0C3B49, #D6EEF5);
+	--color-primary-element-light: var(--teamslogic-brand-tint);
+	--color-primary-element-light-hover: var(--teamslogic-brand-tint-hover);
+	--color-primary-element-light-text: light-dark(#0C3B49, #D6EEF5);
+
+	--color-background-plain: var(--teamslogic-chrome);
+	--color-background-plain-text: var(--teamslogic-foreground-1);
+	--image-background: none;
+
+	background-color: var(--teamslogic-chrome);
+}
+
+/*
+ * Window: title bar and app rail are the chrome, the content sits on it with a rounded corner
+ */
+
+/* Talk keeps running (calls too) while another app of the rail is shown over it */
+body[data-teamslogic-app]:not([data-teamslogic-app='chat']) #content {
+	visibility: hidden;
+}
+
+#content-vue.content {
+	inset-inline-start: var(--teamslogic-rail-width);
+	width: calc(100% - var(--teamslogic-rail-width)) !important;
+	border-start-start-radius: var(--border-radius-container);
+	background-color: var(--teamslogic-stage);
+	box-shadow: var(--teamslogic-shadow-2);
+}
+
+/*
+ * The conversation list: the Teams "Chat" pane
+ */
+
+#content-vue #app-navigation-vue {
+	background-color: var(--teamslogic-pane);
+	border-inline-end: 1px solid var(--teamslogic-stroke);
+}
+
+#content-vue .app-navigation:not(.app-navigation--closed) ~ .app-content {
+	border-inline-start: none !important;
+	border-radius: 0 !important;
+}
+
+#content-vue #app-navigation-vue .navigation-top {
+	padding-block: 12px 8px;
+}
+
+#content-vue #app-navigation-vue .navigation-buttons-container {
+	padding-inline: 12px;
+}
+
+/* The pane title replaces Talk's search box, which the title bar search drives */
+#content-vue #app-navigation-vue .new-conversation {
+	min-height: 32px;
+
+	&::before {
+		content: var(--teamslogic-list-title, 'Chat');
+		flex: 1 1 auto;
+		padding-inline-start: 8px;
+		color: var(--teamslogic-foreground-1);
+		font-size: 18px;
+		font-weight: 700;
+		line-height: 32px;
+	}
+
+	.conversations-search {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		opacity: 0;
+	}
+}
+
+/* Home and Threads */
+#content-vue #app-navigation-vue .left-sidebar-button {
+	--button-padding: 8px;
+	height: 36px;
+	border-radius: var(--border-radius-element);
+	font-weight: 400;
+
+	&:hover {
+		background-color: var(--teamslogic-pane-hover);
+	}
+}
+
+#content-vue #app-navigation-vue .left-sidebar-button--active {
+	background-color: var(--teamslogic-surface);
+	box-shadow: var(--teamslogic-shadow-2);
+	font-weight: 600;
+
+	&::before {
+		display: none;
+	}
+}
+
+/* Section headers ("Favourites", "Other") as Teams' "Pinned" / "Recent" */
+#content-vue #app-navigation-vue .tag-header .app-navigation-entry {
+	min-height: 28px;
+	background: none !important;
+
+	.app-navigation-entry__name {
+		color: var(--teamslogic-foreground-3);
+		font-size: 12px;
+		font-weight: 600;
+	}
+}
+
+#content-vue #app-navigation-vue .scroller {
+	padding-inline: 8px;
+}
+
+/* Conversations */
+#content-vue #app-navigation-vue .conversation.list-item__wrapper {
+	padding-block: 1px;
+
+	.list-item {
+		padding: 6px 8px;
+		border-radius: var(--border-radius-element);
+		background: none;
+	}
+
+	.list-item:hover {
+		background-color: var(--teamslogic-pane-hover);
+	}
+
+	.list-item-content__name {
+		color: var(--teamslogic-foreground-1);
+		font-size: 14px;
+		font-weight: 400;
+	}
+
+	.list-item-content__subname,
+	.list-item-details__details {
+		color: var(--teamslogic-foreground-3);
+		font-size: 12px;
+	}
+
+	/* Unread chats are bold, as in Teams */
+	.list-item-content__main:has(.list-item-content__subname--bold) .list-item-content__name,
+	.list-item-content__subname--bold {
+		color: var(--teamslogic-foreground-1);
+		font-weight: 600;
+	}
+
+	.counter-bubble__counter {
+		background-color: var(--teamslogic-badge);
+		color: #FFFFFF;
+		font-weight: 600;
+	}
+
+	.counter-bubble__counter--outlined {
+		background: none;
+		border-color: var(--teamslogic-foreground-3);
+		color: var(--teamslogic-foreground-2);
+	}
+}
+
+#content-vue #app-navigation-vue .conversation.list-item__wrapper--active .list-item,
+#content-vue #app-navigation-vue .conversation.list-item__wrapper--active .list-item:hover {
+	background-color: var(--teamslogic-surface);
+	box-shadow: var(--teamslogic-shadow-2);
+
+	&::before {
+		display: none;
+	}
+
+	.list-item-content__name,
+	.list-item-content__subname,
+	.list-item-details__details {
+		color: var(--teamslogic-foreground-1) !important;
+	}
+
+	.list-item-content__subname,
+	.list-item-details__details {
+		color: var(--teamslogic-foreground-3) !important;
+	}
+}
+
+/*
+ * The conversation header
+ */
+
+#content-vue .top-bar:not(.top-bar--in-call) {
+	min-height: 56px;
+	padding-inline: 16px 8px;
+	background-color: var(--teamslogic-surface);
+	border-block-end: 1px solid var(--teamslogic-stroke);
+
+	.conversation-header .title {
+		color: var(--teamslogic-foreground-1);
+		font-size: 18px;
+		font-weight: 700;
+	}
+
+	.conversation-header .description {
+		color: var(--teamslogic-foreground-3);
+		font-size: 12px;
+	}
+
+	.top-bar__controls {
+		gap: 4px;
+	}
+
+	.button-vue--tertiary,
+	.action-item .button-vue--tertiary {
+		color: var(--teamslogic-foreground-2);
+	}
+}
+
+/* Teams' call button: a 32px brand button with a 4px radius */
+#content-vue .top-bar .join-call.button-vue,
+#content-vue .top-bar .join-call .button-vue {
+	--button-size: 32px;
+	min-height: 32px;
+	border-radius: var(--border-radius-element);
+	font-weight: 600;
+}
+
+/*
+ * Messages: Teams cards on the grey stage, own messages in the brand tint on the right
+ */
+
+#content-vue .chatView,
+#content-vue .messages-list__scroller {
+	background-color: var(--teamslogic-stage);
+}
+
+#content-vue .messages-list__scroller .scroller__content {
+	padding-inline: 20px;
+}
+
+/* The date as a centred label on a rule */
+#content-vue .messages-date {
+	background: linear-gradient(var(--teamslogic-stroke), var(--teamslogic-stroke)) center / 100% 1px no-repeat;
+
+	.messages-date__text {
+		padding-inline: 12px;
+		background-color: var(--teamslogic-stage);
+		color: var(--teamslogic-foreground-3);
+		font-size: 12px;
+		font-weight: 400;
+		box-shadow: none;
+	}
+}
+
+#content-vue .wrapper.incoming .messages__author,
+#content-vue .wrapper.outgoing .messages__author {
+	color: var(--teamslogic-foreground-3);
+	font-size: 12px;
+}
+
+#content-vue .message--sided .message-body {
+	padding: 8px 16px 10px;
+	border: none;
+	border-radius: var(--border-radius-element) !important;
+	color: var(--teamslogic-foreground-1);
+}
+
+#content-vue .message--sided.incoming .message-body {
+	--message-body-hover: var(--teamslogic-surface);
+	background-color: var(--teamslogic-surface);
+	box-shadow: var(--teamslogic-shadow-2);
+}
+
+#content-vue .message--sided.outgoing .message-body {
+	--message-body-hover: var(--teamslogic-brand-tint);
+	background-color: var(--teamslogic-brand-tint);
+}
+
+/* Teams shows no avatar beside your own messages */
+#content-vue .wrapper.outgoing .messages__avatar-wrapper {
+	display: none;
+}
+
+#content-vue .wrapper.outgoing .messages__content:not(.small-view) {
+	padding-inline-end: 0;
+}
+
+#content-vue .message-main__info .date,
+#content-vue .message-main__info .editor {
+	color: var(--teamslogic-foreground-3);
+	font-size: 12px;
+}
+
+#content-vue .message-buttons-bar.outlined {
+	border-radius: var(--border-radius-element);
+	box-shadow: var(--teamslogic-shadow-4);
+}
+
+/*
+ * The composer: a white box with the brand underline when focused
+ */
+
+#content-vue .chatView > .wrapper {
+	padding-block: 8px 16px;
+	background-color: var(--teamslogic-stage);
+}
+
+#content-vue .new-message-form .rich-contenteditable__input {
+	border: 1px solid transparent;
+	border-block-end-width: 2px;
+	border-radius: var(--border-radius-element);
+	background-color: var(--teamslogic-surface);
+	box-shadow: var(--teamslogic-shadow-2);
+
+	&:hover {
+		border-color: transparent;
+	}
+
+	&:focus,
+	&:focus-visible {
+		border-color: transparent;
+		border-block-end-color: var(--teamslogic-brand-foreground);
+		box-shadow: var(--teamslogic-shadow-2);
+		outline: none;
+	}
+}
+
+#content-vue .new-message-form > button[type='submit']:last-of-type {
+	--color-primary-element: transparent;
+	--color-primary-element-hover: var(--color-background-hover);
+	color: var(--teamslogic-brand-foreground);
+}
+
+/*
+ * The details sidebar
+ */
+
+#content-vue #app-sidebar-vue {
+	background-color: var(--teamslogic-surface);
+	border-inline-start: 1px solid var(--teamslogic-stroke);
+
+	.app-sidebar-tabs__tab {
+		border-radius: var(--border-radius-element);
+	}
+
+	.app-sidebar-tabs__highlight {
+		background-color: var(--teamslogic-brand-foreground);
+	}
+}

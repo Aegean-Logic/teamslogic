@@ -6,17 +6,20 @@
 import { ref, watchEffect } from 'vue'
 
 /**
+ * Number of conversations with unread notifications, also shown on the app rail
+ */
+export const unreadConversationsCount = ref(0)
+
+/**
  * Set badge counter according to Talk unread counts
  */
 export function useBadgeCountIntegration() {
-	const count = ref(0)
-
 	window.OCA.Talk.instance.$store.watch(countUnreadConversations, (newValue: number) => {
-		count.value = newValue
+		unreadConversationsCount.value = newValue
 	}, { immediate: true })
 
 	watchEffect(() => {
-		window.TALK_DESKTOP.setBadgeCount(count.value)
+		window.TALK_DESKTOP.setBadgeCount(unreadConversationsCount.value)
 	})
 }
 

@@ -15,7 +15,7 @@ import { t } from '@nextcloud/l10n'
 import { listen } from '@nextcloud/notify_push'
 import { generateFilePath } from '@nextcloud/router'
 import { Howl } from 'howler'
-import { computed } from 'vue'
+import { computed, shallowRef } from 'vue'
 import { appData } from '../../../app/AppData.js'
 import { checkCurrentUserHasPendingCall } from '../../../callbox/renderer/callbox.service.ts'
 import { getAppConfigValue } from '../../../shared/appConfig.service.ts'
@@ -26,6 +26,11 @@ import { useUserStatusStore } from '../UserStatus/userStatus.store.ts'
 import { getNotificationsData } from './notifications.service.js'
 
 const isTestNotificationApp = (notificationApp) => ['admin_notification_talk', 'admin_notifications'].includes(notificationApp)
+
+/**
+ * TeamsLogic: every notification of the user, of all apps, for the Activity app
+ */
+export const allNotifications = shallowRef([])
 
 /**
  *
@@ -238,10 +243,12 @@ export function createNotificationStore() {
 			// 204 No Content - Intercept when no notifiers are there.
 			console.debug('Fetching notifications but no content, slowing down polling to ' + state.pollIntervalBase * 10)
 			_setPollingInterval(state.pollIntervalBase * 10)
+			allNotifications.value = []
 		} else if (response.status === 200) {
 			state.userStatus = response.headers['x-nextcloud-user-status']
 			state.lastETag = response.headers.etag
 			state.lastTabId = response.tabId
+			allNotifications.value = response.data
 			state.notifications = response.data.filter((notification) => notification.app === 'spreed' || isTestNotificationApp(notification.app))
 			const newNotifications = state.notifications.filter((notification) => {
 				return !notificationsSet.has(notification.notificationId) && notification.notificationId > state.notificationThresholdId
@@ -260,6 +267,7 @@ export function createNotificationStore() {
 		} else if (response.status === 304) {
 			// 304 - Not modified
 			console.debug('No new notification data received')
+			allNotifications.value = response.data
 			_setPollingInterval(state.pollIntervalBase)
 		} else if (response.status === 503) {
 			// 503 - Maintenance mode

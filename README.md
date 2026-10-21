@@ -45,6 +45,21 @@ the window entry points `talk_desktop__window_*`, `window.TALK_DESKTOP`, and the
 Branded builds turn off upstream's GitHub update check (it would look at Nextcloud's releases).
 TeamsLogic updates come with Aegean Office Setup.
 
+### The Teams look
+
+The window is laid out and styled like Microsoft Teams, without forking Talk's own UI:
+
+| Where | What |
+|---|---|
+| `src/talk/renderer/teamslogic.theme.css` | Fluent 2 neutrals for light and dark (one `light-dark()` token set), Segoe UI at 14 px, 4 px corners, the "Chat" list pane, conversation header, message cards (yours in the brand tint on the right, without an avatar) and composer. It only restyles Talk's markup, prefixed with `#content-vue` to beat Talk's scoped styles, so check it after a Talk update. The high contrast themes keep Nextcloud's colours |
+| `src/talk/renderer/AppRail/` | The left app rail (Activity, Chat, Calendar, Calls, Files, with Teams' badges) and `shell.store.ts`, which switches between them. Leaving Chat closes the open conversation in the hidden Talk (it would mark messages read otherwise) unless a call runs there, and coming back reopens it. Icons are Fluent UI System Icons (MIT, `fluentIcons.ts`) |
+| `src/talk/renderer/Apps/` | The Teams apps beside Chat, built from the server's APIs, each mounted when first shown and kept while hidden: **Activity** (the Notifications app: @mentions, replies, reactions, calls, shares, editor @mentions; Talk items open the chat at the message), **Calendar** (CalDAV through Talk's client and ical.js; Day / Work week / Week, Join on Talk meetings, Meet now, and New meeting, which creates the conversation and lets Talk write the event and invite people), **Calls** (call someone, calls in progress, speed dial, and recent calls from the chats: Talk keeps no call log), **Files** (WebDAV: Recent, My files, Shared with me, Favourites; images, video, PDF and text open in the built-in viewer, Office documents in Nextcloud in the browser; upload, new folder, download, favourite, share in a chat). Not built: editing or deleting calendar events, deleting, renaming or moving files |
+| `src/talk/renderer/TitleBar/` | Back and forward, the centred search box (it drives Talk's conversation search, which the theme hides; Ctrl+E focuses it), "Settings and more" and the account menu, in a 48 px title bar |
+| `src/talk/talk.window.js` | The window background and title bar buttons follow the light or dark chrome |
+
+The accent is the TeamsLogic brand ramp (`--teamslogic-brand*` in the theme), in the places Teams uses its purple.
+Microsoft's names and logos are not used.
+
 ## Building on Windows
 
 Needs Node 24 and npm 11.

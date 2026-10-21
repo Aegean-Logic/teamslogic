@@ -6,13 +6,26 @@
 <script setup lang="ts">
 import { provide, ref } from 'vue'
 import AppWindow from '../../shared/components/AppWindow.vue'
+import AppRail from './AppRail/AppRail.vue'
+import AppView from './Apps/AppView.vue'
 import TalkWrapper from './TalkWrapper/TalkWrapper.vue'
 import TitleBar from './TitleBar/TitleBar.vue'
+import { useShellStore } from './AppRail/shell.store.ts'
 import { useNotificationsStore } from './notifications/notifications.store.js'
 import { createViewer } from './Viewer/Viewer.js'
 
 const isTalkInitialized = ref(false)
 provide('talk:isInitialized', isTalkInitialized)
+
+const shellStore = useShellStore()
+
+/**
+ * Talk is running
+ */
+function onTalkReady() {
+	isTalkInitialized.value = true
+	shellStore.onTalkReady()
+}
 
 useNotificationsStore()
 
@@ -35,6 +48,8 @@ document.body.appendChild(document.createElement('div'))
 	<AppWindow>
 		<div id="skip-actions" />
 		<TitleBar id="header" />
-		<TalkWrapper @ready="isTalkInitialized = true" />
+		<AppRail />
+		<TalkWrapper @ready="onTalkReady" />
+		<AppView />
 	</AppWindow>
 </template>

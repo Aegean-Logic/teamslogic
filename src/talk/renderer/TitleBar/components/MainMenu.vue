@@ -17,8 +17,8 @@ import NcActionSeparator from '@nextcloud/vue/components/NcActionSeparator'
 import IconBugOutline from 'vue-material-design-icons/BugOutline.vue'
 import IconCloudDownloadOutline from 'vue-material-design-icons/CloudDownloadOutline.vue'
 import IconCogOutline from 'vue-material-design-icons/CogOutline.vue'
+import IconDotsHorizontal from 'vue-material-design-icons/DotsHorizontal.vue'
 import IconInformationOutline from 'vue-material-design-icons/InformationOutline.vue'
-import IconMenu from 'vue-material-design-icons/Menu.vue'
 import IconReload from 'vue-material-design-icons/Reload.vue'
 import IconWeb from 'vue-material-design-icons/Web.vue'
 import UiDotBadge from './UiDotBadge.vue'
@@ -48,12 +48,12 @@ onBeforeUnmount(() => {
 
 <template>
 	<NcActions
-		:aria-label="t('talk_desktop', 'Menu')"
+		:aria-label="t('talk_desktop', 'Settings and more')"
 		variant="tertiary-no-background"
 		container="body">
 		<template #icon>
 			<UiDotBadge insetInlineEnd="10%" :enabled="!!newRelease">
-				<IconMenu :size="20" fillColor="var(--color-background-plain-text)" />
+				<IconDotsHorizontal :size="20" fillColor="var(--color-background-plain-text)" />
 			</UiDotBadge>
 		</template>
 

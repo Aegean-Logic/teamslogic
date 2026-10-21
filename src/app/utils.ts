@@ -5,7 +5,7 @@
 
 import type { BrowserWindow } from 'electron'
 
-import { screen } from 'electron'
+import { nativeTheme, screen } from 'electron'
 import { APP_ORIGIN } from '../constants.js'
 import { BUILD_CONFIG } from '../shared/build.config.ts'
 import { getAppConfig } from './AppConfig.ts'
@@ -123,6 +123,13 @@ export function isInternalUrl(url: string | URL) {
  */
 export function isExternalUrl(url: string | URL) {
 	return !isInternalUrl(url)
+}
+
+/**
+ * Get the color of the TeamsLogic window chrome (title bar and app rail), the same as --teamslogic-chrome in teamslogic.theme.css
+ */
+export function getChromeColor(): string {
+	return nativeTheme.shouldUseDarkColors ? '#141414' : '#EBEBEB'
 }
 
 /**

@@ -40,17 +40,35 @@ export function openRoot() {
 }
 
 /**
+ * Get the token of the conversation open in Talk, if any
+ */
+export function getCurrentConversationToken(): string | null {
+	const route = getTalkRouter().currentRoute.value
+	return route.name === 'conversation' ? route.params.token as string : null
+}
+
+/**
+ * Whether the user is in a call in the conversation
+ *
+ * @param token - Conversation token
+ */
+export function isInCall(token: string): boolean {
+	return getTalkInstance().$store.getters.isInCall(token)
+}
+
+/**
  * Open a conversation in Talk
  *
  * @param token - Conversation token
  * @param options - Options
  * @param options.directCall - Use direct call (open media settings to join a call)
+ * @param options.messageId - Message to scroll to
  */
-export async function openConversation(token: string, { directCall = false }: { directCall?: boolean } = {}) {
+export async function openConversation(token: string, { directCall = false, messageId }: { directCall?: boolean, messageId?: number | string } = {}) {
 	await getTalkRouter().push({
 		name: 'conversation',
 		params: { token },
-		hash: directCall ? '#direct-call' : undefined,
+		hash: directCall ? '#direct-call' : (messageId ? `#message_${messageId}` : undefined),
 	}).catch(passDuplicatedNavigationError)
 
 	await window.TALK_DESKTOP.focusTalk()
