@@ -21,6 +21,8 @@ import AppStage from '../components/AppStage.vue'
 import PeoplePicker from '../components/PeoplePicker.vue'
 import { useShellStore } from '../../AppRail/shell.store.ts'
 import { formatListTime } from '../apps.utils.ts'
+import { talkWithContact } from '../People/contact.actions.ts'
+import { getCachedContact } from '../People/people.service.ts'
 import { CONVERSATION_TYPE, createConversation } from '../talk.api.ts'
 
 type Conversation = {
@@ -94,6 +96,15 @@ async function callPicked() {
 	}
 	calling.value = true
 	try {
+		if (callee.value.source === 'contacts') {
+			// A contact from People: Talk invites them by email (or the computer's phone app dials them)
+			const contact = getCachedContact(callee.value.id)
+			callee.value = null
+			if (contact) {
+				await talkWithContact(contact, true)
+			}
+			return
+		}
 		const conversation = await createConversation({ roomType: CONVERSATION_TYPE.ONE_TO_ONE, participants: { users: [callee.value.id] } })
 		callee.value = null
 		await shellStore.openChat(conversation.token, { directCall: true })
@@ -123,8 +134,9 @@ async function groupCall() {
 					<PeoplePicker
 						v-model="callee"
 						:inputLabel="t('talk_desktop', 'Make a call')"
-						:placeholder="t('talk_desktop', 'Type a name')"
-						onlyUsers />
+						:placeholder="t('talk_desktop', 'Type a name, email or number')"
+						onlyUsers
+						withContacts />
 					<NcButton
 						variant="primary"
 						type="submit"

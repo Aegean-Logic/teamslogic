@@ -20,7 +20,7 @@ import { useShellStore } from '../../AppRail/shell.store.ts'
 import { readStored, writeStored } from '../apps.utils.ts'
 import { CONVERSATION_TYPE, createConversation, hasTalkFeature } from '../talk.api.ts'
 import { useAppShown } from '../useAppShown.ts'
-import { getDefaultCalendar, getEvents, loadCalendars } from './calendar.service.ts'
+import { getDefaultCalendar, getEvents, loadCalendars, showTalkMediaSettings } from './calendar.service.ts'
 
 type CalendarView = 'day' | 'workweek' | 'week'
 
@@ -135,6 +135,33 @@ function newMeeting(start?: Date) {
 	const next = new Date()
 	next.setMinutes(next.getMinutes() < 30 ? 30 : 60, 0, 0)
 	newMeetingStart.value = next
+}
+
+/**
+ * Join a Talk meeting's call. With video, Talk's device preview opens first (as Teams' pre-join screen), with the
+ * camera on; without, the call starts straight away with the camera off.
+ *
+ * @param token - The meeting's conversation
+ * @param video - Join with video
+ */
+async function joinTalkMeeting(token: string, video: boolean) {
+	if (!video) {
+		await shellStore.openChat(token, { directCall: true })
+		return
+	}
+	await shellStore.openChat(token)
+	// Talk mounts the conversation's media settings once it has opened
+	await new Promise((resolve) => setTimeout(resolve, 400))
+	showTalkMediaSettings()
+}
+
+/**
+ * Open a Teams, Meet or other meeting link (the browser, or the service's own app, takes it)
+ *
+ * @param url - The meeting link
+ */
+function openMeetingLink(url: string) {
+	window.open(url, '_blank', 'noopener')
 }
 
 /**
@@ -263,8 +290,9 @@ useAppShown('calendar', () => {
 					v-if="selectedEvent"
 					:event="selectedEvent"
 					@close="selectedId = null"
-					@join="(token) => shellStore.openChat(token, { directCall: true })"
-					@chat="(token) => shellStore.openChat(token)" />
+					@join="joinTalkMeeting"
+					@chat="(token) => shellStore.openChat(token)"
+					@openLink="openMeetingLink" />
 			</div>
 		</div>
 

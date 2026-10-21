@@ -14,6 +14,8 @@ const APPS = {
 	activity: defineAsyncComponent(() => import('./Activity/ActivityApp.vue')),
 	mail: defineAsyncComponent(() => import('./Mail/MailApp.vue')),
 	calendar: defineAsyncComponent(() => import('./Calendar/CalendarApp.vue')),
+	todo: defineAsyncComponent(() => import('./ToDo/ToDoApp.vue')),
+	people: defineAsyncComponent(() => import('./People/PeopleApp.vue')),
 	calls: defineAsyncComponent(() => import('./Calls/CallsApp.vue')),
 	files: defineAsyncComponent(() => import('./Files/FilesApp.vue')),
 }

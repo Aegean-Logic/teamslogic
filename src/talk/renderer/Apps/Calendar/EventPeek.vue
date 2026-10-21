@@ -18,8 +18,11 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	close: []
-	join: [token: string]
+	/** Join a Talk meeting's call: with the camera preview first, or straight in without the camera */
+	join: [token: string, video: boolean]
 	chat: [token: string]
+	/** Open a Teams, Meet or other meeting link */
+	openLink: [url: string]
 }>()
 
 const locale = getCanonicalLocale()
@@ -40,8 +43,46 @@ const STATUS_LABELS: Record<string, string> = {
 	'NEEDS-ACTION': t('talk_desktop', 'No response'),
 }
 
-/** A Talk meeting shows the link as its location; Teams shows "Online meeting" instead */
-const location = computed(() => props.event.talkToken && /^https?:\/\//.test(props.event.location) ? '' : props.event.location)
+/** A meeting shows its link as the location; Teams shows "Online meeting" instead */
+const location = computed(() => {
+	const { location, talkToken, joinUrl } = props.event
+	if ((talkToken && /^https?:\/\//.test(location)) || (joinUrl && location.trim() === joinUrl)) {
+		return ''
+	}
+	return location
+})
+
+const meetingLabel = computed(() => {
+	switch (props.event.meeting) {
+		case 'talk':
+			return props.event.talkAudio ? t('talk_desktop', 'Nextcloud Talk call (audio only)') : t('talk_desktop', 'Nextcloud Talk meeting')
+		case 'teams':
+			return t('talk_desktop', 'Microsoft Teams meeting')
+		case 'meet':
+			return t('talk_desktop', 'Google Meet')
+		case 'link':
+			return t('talk_desktop', 'Online meeting')
+		default:
+			return ''
+	}
+})
+
+const joinLabel = computed(() => {
+	switch (props.event.meeting) {
+		case 'teams':
+			return t('talk_desktop', 'Join Teams meeting')
+		case 'meet':
+			return t('talk_desktop', 'Join with Google Meet')
+		default:
+			return t('talk_desktop', 'Join')
+	}
+})
+
+/** The description without the "Join online: …" line the server app adds: the Join button does that */
+const description = computed(() => {
+	const { description, joinUrl } = props.event
+	return joinUrl ? description.replace(new RegExp(`\\n*(?:Join online|Join): ${joinUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`), '').trim() : description
+})
 </script>
 
 <template>
@@ -58,11 +99,17 @@ const location = computed(() => props.event.talkToken && /^https?:\/\//.test(pro
 		</header>
 
 		<div v-if="event.talkToken" class="event-peek__actions">
-			<NcButton variant="primary" @click="emit('join', event.talkToken)">
+			<NcButton variant="primary" @click="emit('join', event.talkToken, !event.talkAudio)">
 				<template #icon>
-					<FluentIcon name="video" :size="20" />
+					<FluentIcon :name="event.talkAudio ? 'call' : 'video'" :size="20" />
 				</template>
 				{{ t('talk_desktop', 'Join') }}
+			</NcButton>
+			<NcButton variant="secondary" @click="emit('join', event.talkToken, event.talkAudio)">
+				<template #icon>
+					<FluentIcon :name="event.talkAudio ? 'video' : 'call'" :size="20" />
+				</template>
+				{{ event.talkAudio ? t('talk_desktop', 'Join with video') : t('talk_desktop', 'Audio only') }}
 			</NcButton>
 			<NcButton variant="secondary" @click="emit('chat', event.talkToken)">
 				<template #icon>
@@ -71,15 +118,26 @@ const location = computed(() => props.event.talkToken && /^https?:\/\//.test(pro
 				{{ t('talk_desktop', 'Chat with participants') }}
 			</NcButton>
 		</div>
+		<div v-else-if="event.joinUrl" class="event-peek__actions">
+			<NcButton variant="primary" @click="emit('openLink', event.joinUrl)">
+				<template #icon>
+					<FluentIcon name="video" :size="20" />
+				</template>
+				{{ joinLabel }}
+			</NcButton>
+		</div>
 
 		<dl class="event-peek__details">
 			<div class="event-peek__row">
 				<dt><FluentIcon name="clock" :size="20" /></dt>
 				<dd>{{ when }}</dd>
 			</div>
-			<div v-if="event.talkToken" class="event-peek__row">
-				<dt><FluentIcon name="video" :size="20" /></dt>
-				<dd>{{ t('talk_desktop', 'Online meeting') }}</dd>
+			<div v-if="meetingLabel" class="event-peek__row">
+				<dt><FluentIcon :name="event.talkAudio ? 'call' : 'video'" :size="20" /></dt>
+				<dd>
+					{{ meetingLabel }}
+					<span v-if="!event.talkToken && !event.joinUrl" class="event-peek__muted">{{ t('talk_desktop', 'The link appears once the calendar syncs') }}</span>
+				</dd>
 			</div>
 			<div v-if="location" class="event-peek__row">
 				<dt><FluentIcon name="location" :size="20" /></dt>
@@ -102,10 +160,10 @@ const location = computed(() => props.event.talkToken && /^https?:\/\//.test(pro
 					</ul>
 				</dd>
 			</div>
-			<div v-if="event.description" class="event-peek__row">
+			<div v-if="description" class="event-peek__row">
 				<dt><FluentIcon name="textDescription" :size="20" /></dt>
 				<dd class="event-peek__description">
-					{{ event.description }}
+					{{ description }}
 				</dd>
 			</div>
 		</dl>

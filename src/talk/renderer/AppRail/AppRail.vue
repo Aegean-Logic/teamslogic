@@ -25,6 +25,8 @@ const RAIL_APPS: { id: ShellApp, icon: FluentIconName, label: string }[] = [
 	{ id: 'chat', icon: 'chat', label: t('talk_desktop', 'Chat') },
 	{ id: 'mail', icon: 'mail', label: t('talk_desktop', 'Mail') },
 	{ id: 'calendar', icon: 'calendar', label: t('talk_desktop', 'Calendar') },
+	{ id: 'todo', icon: 'taskList', label: t('talk_desktop', 'To Do') },
+	{ id: 'people', icon: 'people', label: t('talk_desktop', 'People') },
 	{ id: 'calls', icon: 'call', label: t('talk_desktop', 'Calls') },
 	{ id: 'files', icon: 'files', label: t('talk_desktop', 'Files') },
 ]
