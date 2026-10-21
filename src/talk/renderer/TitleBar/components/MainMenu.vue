@@ -14,6 +14,7 @@ import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 import NcActionLink from '@nextcloud/vue/components/NcActionLink'
 import NcActions from '@nextcloud/vue/components/NcActions'
 import NcActionSeparator from '@nextcloud/vue/components/NcActionSeparator'
+import IconAccountMultipleOutline from 'vue-material-design-icons/AccountMultipleOutline.vue'
 import IconBugOutline from 'vue-material-design-icons/BugOutline.vue'
 import IconCloudDownloadOutline from 'vue-material-design-icons/CloudDownloadOutline.vue'
 import IconCogOutline from 'vue-material-design-icons/CogOutline.vue'
@@ -21,6 +22,7 @@ import IconDotsHorizontal from 'vue-material-design-icons/DotsHorizontal.vue'
 import IconInformationOutline from 'vue-material-design-icons/InformationOutline.vue'
 import IconReload from 'vue-material-design-icons/Reload.vue'
 import IconWeb from 'vue-material-design-icons/Web.vue'
+import ConnectedAccountsDialog from '../../Apps/Accounts/ConnectedAccountsDialog.vue'
 import UiDotBadge from './UiDotBadge.vue'
 import { getCurrentTalkRoutePath } from '../../TalkWrapper/talk.service.ts'
 
@@ -32,6 +34,7 @@ const showHelp = () => window.TALK_DESKTOP.showHelp()
 const reload = () => window.location.reload()
 const openSettings = () => window.OCA.Talk.Settings.open()
 const openInWeb = () => window.open(generateUrl(getCurrentTalkRoutePath()), '_blank')
+const isConnectedAccountsOpen = ref(false)
 
 const newRelease = ref<ReleaseInfo | null>(null)
 onBeforeMount(async () => {
@@ -109,6 +112,12 @@ onBeforeUnmount(() => {
 
 		<NcActionSeparator />
 
+		<NcActionButton v-if="isTalkInitialized" closeAfterClick @click="isConnectedAccountsOpen = true">
+			<template #icon>
+				<IconAccountMultipleOutline :size="20" />
+			</template>
+			{{ t('talk_desktop', 'Connected accounts') }}
+		</NcActionButton>
 		<NcActionButton closeAfterClick @click="openSettings">
 			<template #icon>
 				<IconCogOutline :size="20" />
@@ -122,4 +131,5 @@ onBeforeUnmount(() => {
 			{{ t('talk_desktop', 'About') }}
 		</NcActionButton>
 	</NcActions>
+	<ConnectedAccountsDialog v-if="isConnectedAccountsOpen" @close="isConnectedAccountsOpen = false" />
 </template>

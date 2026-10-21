@@ -17,6 +17,7 @@ import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
 import FluentIcon from '../../AppRail/FluentIcon.vue'
 import { appData } from '../../../../app/AppData.js'
+import { connect, listConnections } from '../Accounts/connections.service.ts'
 import { connectOAuthAccount, createAccount, deleteAccount, discoverServers, getOAuthUrls, setSignature } from './mail.service.ts'
 import { useMailStore } from './mail.store.ts'
 
@@ -63,9 +64,37 @@ const oauthProvider = computed<OAuthProvider | null>(() => {
 	return null
 })
 
+/** The TeamsLogic server app connects Google and Microsoft accounts in one go: mail, calendar and contacts */
+const serverConnect = ref(false)
+
 onMounted(async () => {
 	oauthUrls.value = await getOAuthUrls().catch(() => ({}))
+	serverConnect.value = (await listConnections().catch(() => null)) !== null
 })
+
+/**
+ * Connect a Google or Microsoft account through the TeamsLogic server app
+ *
+ * @param provider - google or microsoft
+ */
+async function addThroughServer(provider: OAuthProvider) {
+	busy.value = true
+	try {
+		const connection = await connect(provider, { mail: true, calendar: true, contacts: true })
+		if (connection) {
+			showSuccess(t('talk_desktop', '{email} is connected: mail, calendar and contacts', { email: connection.email }, undefined, { escape: false, sanitize: false }))
+			await mailStore.loadAccounts()
+			await mailStore.loadMessages()
+			view.value = 'list'
+		} else {
+			error.value = t('talk_desktop', 'Sign-in was cancelled or did not finish.')
+		}
+	} catch (exception) {
+		error.value = (exception as Error).message
+	} finally {
+		busy.value = false
+	}
+}
 
 /**
  * Add the account: provider sign-in, or discovered/manual IMAP and SMTP servers
@@ -74,6 +103,10 @@ onMounted(async () => {
  */
 async function add(provider: OAuthProvider | null = oauthProvider.value) {
 	error.value = ''
+	if (provider && serverConnect.value) {
+		await addThroughServer(provider)
+		return
+	}
 	if (!email.value.includes('@')) {
 		error.value = t('talk_desktop', 'Enter your email address')
 		return
