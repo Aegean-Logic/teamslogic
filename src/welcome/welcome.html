@@ -118,6 +118,79 @@
 		right: 15%;
 		top: -80%;
 	}
+
+	/* TeamsLogic: shown in place of the clouds while the server doesn't answer */
+	.wrapper_problem .logo {
+		padding-block-start: 48px;
+		padding-block-end: 16px;
+	}
+
+	.wrapper_problem .clouds {
+		display: none;
+	}
+
+	.problem {
+		-webkit-app-region: no-drag;
+		width: 100%;
+		padding: 0 20px;
+		text-align: center;
+		user-select: text;
+	}
+
+	.problem p {
+		margin: 0 0 8px;
+		font-size: 13px;
+		line-height: 1.4;
+	}
+
+	.problem .problem__title {
+		font-size: 15px;
+		font-weight: 600;
+	}
+
+	.problem .problem__retry {
+		opacity: 0.8;
+	}
+
+	.problem__actions {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		margin-block-start: 12px;
+	}
+
+	.problem__button {
+		height: 34px;
+		border: 1px solid rgba(255, 255, 255, 0.7);
+		border-radius: 17px;
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		font-size: 13px;
+		cursor: pointer;
+	}
+
+	.problem__button:hover,
+	.problem__button:focus-visible {
+		background: rgba(255, 255, 255, 0.15);
+	}
+
+	.problem__button_primary {
+		border-color: white;
+		background: white;
+		color: <%= __BUILD_CONFIG__.brandColor %>;
+		font-weight: 600;
+	}
+
+	.problem__button_primary:hover,
+	.problem__button_primary:focus-visible {
+		background: rgba(255, 255, 255, 0.85);
+	}
+
+	.problem__button:disabled {
+		opacity: 0.6;
+		cursor: default;
+	}
 	</style>
 </head>
 <body>
@@ -129,6 +202,15 @@
 			<div class="cloud" style="--height: 28px; animation: animateCloud 3s linear infinite; top: 50px; left: 20px"></div>
 			<div class="cloud" style="--height: 30px; animation: animateCloud 5s linear infinite; top: 75px;"></div>
 			<div class="cloud" style="--height: 40px; animation: animateCloud 10s linear infinite; top: 100px; left: 150px"></div>
+		</div>
+		<div class="problem hidden" role="alert">
+			<p class="problem__title"></p>
+			<p class="problem__text"></p>
+			<p class="problem__retry"></p>
+			<div class="problem__actions">
+				<button class="problem__button problem__button_primary problem__try-again" type="button"></button>
+				<button class="problem__button problem__change-server" type="button"></button>
+			</div>
 		</div>
 		<div class="spacer"></div>
 		<div class="footer"></div>

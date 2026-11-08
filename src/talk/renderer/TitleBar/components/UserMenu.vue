@@ -20,6 +20,7 @@ import IconEmoticonOutline from 'vue-material-design-icons/EmoticonOutline.vue'
 import IconLogout from 'vue-material-design-icons/Logout.vue'
 import IconPencilOutline from 'vue-material-design-icons/PencilOutline.vue'
 import IconPower from 'vue-material-design-icons/Power.vue'
+import IconServerNetworkOutline from 'vue-material-design-icons/ServerNetworkOutline.vue'
 import AccountFavicon from '../../../../shared/components/AccountFavicon.vue'
 import UserStatusDialog from '../../UserStatus/UserStatusDialog.vue'
 import UiMenu from './UiMenu.vue'
@@ -155,6 +156,14 @@ function handleUserStatusChange(status: UserStatusStatusType) {
 									{{ serverUrlShort }}
 								</em>
 							</span>
+						</UiMenuItem>
+
+						<!-- TeamsLogic: signs out to the sign-in window, where the server address is edited -->
+						<UiMenuItem tag="button" @click="logout">
+							<template #icon>
+								<IconServerNetworkOutline :size="20" />
+							</template>
+							{{ t('talk_desktop', 'Change server …') }}
 						</UiMenuItem>
 
 						<UiMenuSeparator />
